@@ -1,17 +1,3 @@
-"""
-Named Entity Linking (NEL) Module
-=================================
-Links NER-extracted entities to Wikipedia / Wikidata knowledge base.
-
-For each entity, the linker:
-  1. Searches Indonesian Wikipedia for the best matching article.
-  2. Extracts the Wikidata QID (e.g. Q3588) from the Wikipedia page.
-  3. Returns a dictionary with wikipedia_url, wikidata_id, and description.
-
-Uses an in-memory cache so repeated entities across articles in the
-same batch are only looked up once.
-"""
-
 import re
 import time
 import requests
@@ -22,57 +8,42 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# ── Configuration ──────────────────────────────────────────────
 WIKIPEDIA_API = "https://id.wikipedia.org/w/api.php"
 WIKIDATA_API  = "https://www.wikidata.org/w/api.php"
 
-# Rate limiting: be polite
-DELAY_BETWEEN_CALLS = 0.2  # seconds
+DELAY_BETWEEN_CALLS = 0.2  
 MAX_RETRIES = 2
 
-# Wikipedia/Wikidata requires a User-Agent header
 HEADERS = {
     "User-Agent": "NewsFlowBot/1.0 (https://github.com/JullMol/NewsFlow; jullmol@example.com)"
 }
 
-# In-memory cache: entity_name -> NEL result dict
 _nel_cache: dict[str, dict | None] = {}
 
 def _get_similarity(a: str, b: str) -> float:
-    """
-    Improved similarity score with multiple strategies:
-    1. Sequence matching (whole string)
-    2. Word-level matching (handles reordered words)
-    3. Prefix/suffix matching (handles abbreviations)
-    """
     a_clean = re.sub(r'[^\w\s]', '', a.lower()).strip()
     b_clean = re.sub(r'[^\w\s]', '', b.lower()).strip()
     
     if not a_clean or not b_clean: 
         return 0.0
     
-    # Strategy 1: Exact substring match (highest confidence)
     if a_clean == b_clean:
         return 1.0
     if a_clean in b_clean or b_clean in a_clean:
         return 0.95
     
-    # Strategy 2: Sequence matcher on whole strings
     seq_ratio = SequenceMatcher(None, a_clean, b_clean).ratio()
     
-    # Strategy 3: Word-level matching
     a_words = set(re.findall(r'\w+', a_clean))
     b_words = set(re.findall(r'\w+', b_clean))
     
     if a_words and b_words:
-        # Jaccard similarity
         intersection = a_words.intersection(b_words)
         union = a_words.union(b_words)
         word_ratio = len(intersection) / len(union) if union else 0.0
     else:
         word_ratio = 0.0
     
-    # Strategy 4: Check if all query words are in title (partial match bonus)
     min_words = min(len(a_words), len(b_words))
     if min_words > 0:
         if a_words.issubset(b_words) or b_words.issubset(a_words):
@@ -82,16 +53,11 @@ def _get_similarity(a: str, b: str) -> float:
     else:
         partial_ratio = 0.0
     
-    # Combine strategies: seq_ratio is most reliable
     final_score = max(seq_ratio * 0.4 + word_ratio * 0.35 + partial_ratio * 0.25, seq_ratio)
     
     return final_score
 
 def _search_web_fallback(query: str) -> Optional[dict]:
-    """
-    Search DuckDuckGo Instant Answer API as a fallback.
-    Useful for entities not yet in Wikipedia.
-    """
     params = {
         "q": query,
         "format": "json",
@@ -102,7 +68,6 @@ def _search_web_fallback(query: str) -> Optional[dict]:
         resp = requests.get("https://api.duckduckgo.com/", params=params, headers=HEADERS, timeout=5)
         data = resp.json()
         
-        # Priority 1: AbstractURL (usually Wikipedia or Official Site)
         if data.get("AbstractURL"):
             return {
                 "wikipedia_url": data["AbstractURL"],
@@ -112,7 +77,6 @@ def _search_web_fallback(query: str) -> Optional[dict]:
                 "source":        "DuckDuckGo (Abstract)"
             }
         
-        # Priority 2: Results (if it's a direct link)
         results = data.get("Results", [])
         if results:
             return {
@@ -128,7 +92,6 @@ def _search_web_fallback(query: str) -> Optional[dict]:
         return None
 
 def _search_wikipedia(query: str, lang: str = "id") -> Optional[dict]:
-    """Search Wikipedia (default: Indonesian)."""
     api_url = f"https://{lang}.wikipedia.org/w/api.php"
     params = {
         "action":   "query",
@@ -147,7 +110,6 @@ def _search_wikipedia(query: str, lang: str = "id") -> Optional[dict]:
         return None
 
 def _get_wikidata_info(qid: str) -> Optional[dict]:
-    """Get description and official website from Wikidata."""
     params = {
         "action": "wbgetentities",
         "ids": qid,
@@ -160,19 +122,15 @@ def _get_wikidata_info(qid: str) -> Optional[dict]:
         data = resp.json()
         entity = data.get("entities", {}).get(qid, {})
         
-        # 1. Get Description
         desc_data = entity.get("descriptions", {})
         desc = desc_data.get("id", {}).get("value") or desc_data.get("en", {}).get("value", "")
         
-        # 2. Get Wikipedia URL
         sitelinks = entity.get("sitelinks", {})
         wiki_url = sitelinks.get("idwiki", {}).get("url") or sitelinks.get("enwiki", {}).get("url", "")
         
-        # 3. Get Official Website (P856)
         official_url = None
         claims = entity.get("claims", {})
         if "P856" in claims:
-            # Take the first main value
             try:
                 official_url = claims["P856"][0]["mainsnak"]["datavalue"]["value"]
             except:
@@ -188,7 +146,6 @@ def _get_wikidata_info(qid: str) -> Optional[dict]:
         return None
 
 def _search_wikidata_directly(query: str) -> Optional[dict]:
-    """Fallback search using Wikidata's search API."""
     params = {
         "action": "wbsearchentities",
         "search": query,
@@ -213,7 +170,6 @@ def _search_wikidata_directly(query: str) -> Optional[dict]:
         return None
 
 def _get_page_info(title: str, lang: str = "id") -> Optional[dict]:
-    """Get full page info including Wikidata ID."""
     api_url = f"https://{lang}.wikipedia.org/w/api.php"
     params = {
         "action":  "query",
@@ -243,36 +199,19 @@ def _get_page_info(title: str, lang: str = "id") -> Optional[dict]:
     return None
 
 def _clean_query(query: str) -> str:
-    """
-    Remove clear noisy suffixes but preserve important info.
-    Priority: Keep entity name intact, only remove obvious news noise.
-    """
-    # Remove 'cq' and anything after it (specific news formatting)
     query = re.split(r'\s+cq(?:\s|$)', query, flags=re.IGNORECASE)[0]
     
-    # Remove date patterns like 'per 23 April 2026' but preserve numbers in names
     query = re.sub(r'\s+per\s+\d+\s+(?:januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember|\w+)\s+\d{4}', '', query, flags=re.IGNORECASE)
     query = re.sub(r'\s+per\s+\d+\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)', '', query, flags=re.IGNORECASE)
     
-    # Remove common news attribution suffixes only at very end
     query = re.sub(r'\s+(akan|menegaskan|menyatakan|mengimbau|memastikan|mengatakan|ungkap|jelaskan)\s+.*$', '', query, flags=re.IGNORECASE)
     
-    # Remove trailing punctuation and extra spaces
     query = re.sub(r'[,;:\.]*\s*$', '', query)
     query = query.strip()
     
     return query
 
 def link_entity(name: str, entity_type: str) -> Optional[dict]:
-    """
-    Links an entity to the best available reference.
-    Priority: Official Web > Wikipedia (ID) > Wikipedia (EN) > Web Search.
-    
-    Improved with:
-    - Multiple query variations for better matching
-    - Lowered thresholds for better recall
-    - Better disambiguation using entity type and context
-    """
     cache_key = f"{name}|{entity_type}"
     if cache_key in _nel_cache:
         return _nel_cache[cache_key]
@@ -280,32 +219,25 @@ def link_entity(name: str, entity_type: str) -> Optional[dict]:
     if len(name) < 3: 
         return None
 
-    # Clean the name (remove news fluff)
     cleaned_name = _clean_query(name)
     
     candidates = []
 
-    # Generate query variations: try multiple strategies
     queries = []
     
-    # 1. Cleaned query (prioritized)
     if cleaned_name and cleaned_name != name:
         queries.append(cleaned_name)
     
-    # 2. Original name
     queries.append(name)
     
-    # 3. For multi-word entities, try first N words (handles truncation)
     words = name.split()
     if len(words) > 2:
-        queries.append(' '.join(words[:3]))  # First 3 words
-        queries.append(' '.join(words[:2]))  # First 2 words
+        queries.append(' '.join(words[:3])) 
+        queries.append(' '.join(words[:2]))  
     
-    # 4. For PERSON type, try reverse words (last name first)
     if entity_type == "PERSON" and len(words) == 2:
         queries.append(f"{words[1]} {words[0]}")
     
-    # Remove duplicates while preserving order
     seen = set()
     unique_queries = []
     for q in queries:
@@ -315,14 +247,12 @@ def link_entity(name: str, entity_type: str) -> Optional[dict]:
             unique_queries.append(q)
     
     for q in unique_queries:
-        # --- Step 1: Search Wikipedia (ID) - LOWER THRESHOLD ---
         res_id = _search_wikipedia(q, "id")
-        if res_id and _get_similarity(q, res_id["title"]) > 0.35:  # Lowered from 0.4
+        if res_id and _get_similarity(q, res_id["title"]) > 0.35: 
             info = _get_page_info(res_id["title"], "id")
             if info:
                 wikidata_info = _get_wikidata_info(info["wikidata_id"]) if info["wikidata_id"] else None
                 
-                # Compute score based on similarity
                 sim_score = _get_similarity(q, res_id["title"])
                 base_score = 1.0 if sim_score > 0.85 else (0.9 if sim_score > 0.75 else 0.8)
                 
@@ -337,9 +267,8 @@ def link_entity(name: str, entity_type: str) -> Optional[dict]:
                     "language":      "id"
                 })
 
-        # --- Step 2: Search Wikipedia (EN) - LOWER THRESHOLD ---
         res_en = _search_wikipedia(q, "en")
-        if res_en and _get_similarity(q, res_en["title"]) > 0.5:  # Lowered from 0.6
+        if res_en and _get_similarity(q, res_en["title"]) > 0.5: 
             info = _get_page_info(res_en["title"], "en")
             if info:
                 wikidata_info = _get_wikidata_info(info["wikidata_id"]) if info["wikidata_id"] else None
@@ -359,12 +288,11 @@ def link_entity(name: str, entity_type: str) -> Optional[dict]:
                 })
         
         if candidates: 
-            break  # Found something good, stop searching variations
+            break 
 
-    # --- Step 3: Search Wikidata directly - LOWER THRESHOLD ---
     if not candidates:
         res_wd = _search_wikidata_directly(name)
-        if res_wd and _get_similarity(name, res_wd["matched_title"]) > 0.5:  # Lowered from 0.6
+        if res_wd and _get_similarity(name, res_wd["matched_title"]) > 0.5: 
             wikidata_info = _get_wikidata_info(res_wd["wikidata_id"])
             candidates.append({
                 "wikipedia_url": res_wd["wikipedia_url"],
@@ -377,7 +305,6 @@ def link_entity(name: str, entity_type: str) -> Optional[dict]:
                 "language":      "wikidata"
             })
 
-    # --- Step 4: Fallback to Web Search (DuckDuckGo) ---
     if not candidates:
         res_web = _search_web_fallback(name)
         if res_web:
@@ -396,12 +323,9 @@ def link_entity(name: str, entity_type: str) -> Optional[dict]:
         _nel_cache[cache_key] = None
         return None
 
-    # Sort by score and pick the best
     candidates.sort(key=lambda x: (-x["score"], -x["similarity"]))
     best = candidates[0]
 
-    # --- Step 5: Relevance Check (Official Website) ---
-    # For Organizations, if we have an official website with high score, prefer it
     final_link = best["wikipedia_url"]
     if entity_type == "ORGANIZATION" and best.get("official_url") and best["score"] >= 0.9:
         final_link = best["official_url"]
@@ -411,29 +335,17 @@ def link_entity(name: str, entity_type: str) -> Optional[dict]:
         "wikidata_id":   best["wikidata_id"],
         "deskripsi":     best["deskripsi"],
         "matched_title": best["matched_title"],
-        "nel_score":     best["score"],  # Include score for verification
-        "nel_similarity": best["similarity"],  # Include similarity for verification
-        "nel_language":  best["language"]  # Track which source found it
+        "nel_score":     best["score"],  
+        "nel_similarity": best["similarity"],  
+        "nel_language":  best["language"]  
     }
     
     _nel_cache[cache_key] = result
-    time.sleep(DELAY_BETWEEN_CALLS)  # Be polite to APIs
+    time.sleep(DELAY_BETWEEN_CALLS) 
     return result
 
 
 def link_article_entities(articles: list[dict]) -> list[dict]:
-    """
-    Run NEL on all entities in a batch of articles.
-    Each entity dict in article["entities"] gets enriched with:
-      - wikipedia_url
-      - wikidata_id
-      - deskripsi
-      - nel_matched (bool)
-      - nel_score (confidence score 0-1)
-      - nel_similarity (similarity match score)
-      - nel_language (which source found it)
-    """
-    # Count total entities for progress
     total = sum(len(a.get("entities", [])) for a in articles)
     linked = 0
     not_found = 0
@@ -476,7 +388,6 @@ def link_article_entities(articles: list[dict]) -> list[dict]:
 
 
 def get_cache_stats() -> dict:
-    """Return stats about the NEL cache."""
     total = len(_nel_cache)
     matched = sum(1 for v in _nel_cache.values() if v is not None)
     return {
@@ -486,7 +397,6 @@ def get_cache_stats() -> dict:
     }
 
 
-# ── CLI test ───────────────────────────────────────────────────
 if __name__ == "__main__":
     test_entities = [
         ("Joko Widodo", "PERSON"),
