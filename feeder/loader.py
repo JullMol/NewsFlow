@@ -26,7 +26,7 @@ DIM_CACHE = {
 
 def get_connection():
     config = DB_CONFIG.copy()
-    config["connect_timeout"] = 15  # 15 seconds to connect
+    # Additional timeout for query execution
     config["options"] = "-c statement_timeout=30000"  # 30 seconds query timeout
     return psycopg2.connect(**config)
 
@@ -118,18 +118,42 @@ def get_sentimen_id(conn, label: str) -> int:
     DIM_CACHE["sentimen"][label] = s_id
     return s_id
 
-def upsert_dim_entitas(conn, nama: str, tipe: str) -> int:
+def upsert_dim_entitas(conn, nama: str, tipe: str,
+                       wikidata_id: str = None, wikipedia_url: str = None,
+                       deskripsi: str = None, nel_matched: bool = False) -> int:
     cache_key = (nama, tipe)
     if cache_key in DIM_CACHE["entitas"]:
-        return DIM_CACHE["entitas"][cache_key]
+        e_id = DIM_CACHE["entitas"][cache_key]
+        # If we now have NEL data, enrich the existing row
+        if nel_matched and e_id:
+            try:
+                cur = conn.cursor()
+                cur.execute("""
+                    UPDATE dim_entitas
+                    SET wikidata_id   = COALESCE(wikidata_id, %s),
+                        wikipedia_url = COALESCE(wikipedia_url, %s),
+                        deskripsi     = COALESCE(deskripsi, %s),
+                        nel_matched   = TRUE
+                    WHERE entitas_id = %s
+                      AND (nel_matched = FALSE OR nel_matched IS NULL)
+                """, (wikidata_id, wikipedia_url, deskripsi, e_id))
+            except Exception:
+                pass
+        return e_id
 
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO dim_entitas (nama_entitas, tipe_entitas)
-        VALUES (%s, %s)
-        ON CONFLICT (nama_entitas, tipe_entitas) DO NOTHING
+        INSERT INTO dim_entitas (nama_entitas, tipe_entitas,
+                                 wikidata_id, wikipedia_url,
+                                 deskripsi, nel_matched)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        ON CONFLICT (nama_entitas, tipe_entitas) DO UPDATE SET
+            wikidata_id   = COALESCE(dim_entitas.wikidata_id, EXCLUDED.wikidata_id),
+            wikipedia_url = COALESCE(dim_entitas.wikipedia_url, EXCLUDED.wikipedia_url),
+            deskripsi     = COALESCE(dim_entitas.deskripsi, EXCLUDED.deskripsi),
+            nel_matched   = dim_entitas.nel_matched OR EXCLUDED.nel_matched
         RETURNING entitas_id
-    """, (nama, tipe))
+    """, (nama, tipe, wikidata_id, wikipedia_url, deskripsi, nel_matched))
     result = cur.fetchone()
     if result:
         e_id = result[0]
@@ -139,7 +163,7 @@ def upsert_dim_entitas(conn, nama: str, tipe: str) -> int:
             (nama, tipe)
         )
         e_id = cur.fetchone()[0]
-    
+
     DIM_CACHE["entitas"][cache_key] = e_id
     return e_id
 
@@ -232,12 +256,18 @@ def load_article(conn, article: dict) -> int | None:
         _invalidate_dim_cache(pub_date, category, author)
         return None
 
-    # ── Load entities ke bridge table ──
+    # ── Load entities ke bridge table (with NEL data) ──
     if artikel_id and article.get("entities"):
         for entity in article["entities"]:
             try:
                 cur.execute("SAVEPOINT sp_entity")
-                entitas_id = upsert_dim_entitas(conn, entity["name"], entity["type"])
+                entitas_id = upsert_dim_entitas(
+                    conn, entity["name"], entity["type"],
+                    wikidata_id=entity.get("wikidata_id"),
+                    wikipedia_url=entity.get("wikipedia_url"),
+                    deskripsi=entity.get("deskripsi"),
+                    nel_matched=entity.get("nel_matched", False),
+                )
                 cur.execute("""
                     INSERT INTO bridge_artikel_entitas (artikel_id, entitas_id, frekuensi)
                     VALUES (%s, %s, %s)

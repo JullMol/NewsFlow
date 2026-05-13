@@ -21,12 +21,13 @@ def run_transform_batch(articles: list[dict], batch_date: str):
     from preprocessor.sentiment_analyzer import analyze_articles, get_analyzer
     from preprocessor.embedding_generator import generate_article_embeddings, get_generator
     from preprocessor.ner_extractor import extract_article_entities
+    from preprocessor.nel_linker import link_article_entities
     from preprocessor.trending_detector import process_trending
 
     print(f"\nTRANSFORM {batch_date} ({len(articles)} articles)")
 
     # Step 1: Clean text
-    print("[1/5] Cleaning text")
+    print("[1/6] Cleaning text")
     articles = clean_batch(articles)
     print(f"  After cleaning: {len(articles)} articles")
 
@@ -34,21 +35,25 @@ def run_transform_batch(articles: list[dict], batch_date: str):
         return articles, []
 
     # Step 2: Sentiment analysis
-    print("[2/5] Analyzing sentiment")
+    print("[2/6] Analyzing sentiment")
     analyzer = get_analyzer()
     articles = analyze_articles(articles, analyzer)
 
     # Step 3: Generate embeddings
-    print("[3/5] Generating embeddings")
+    print("[3/6] Generating embeddings")
     generator = get_generator()
     articles = generate_article_embeddings(articles, generator)
 
     # Step 4: Extract entities (NER)
-    print("[4/5] Extracting entities")
+    print("[4/6] Extracting entities")
     articles = extract_article_entities(articles)
 
-    # Step 5: Detect trending topics
-    print("[5/5] Detecting trending topics")
+    # Step 5: Link entities to knowledge base (NEL)
+    print("[5/6] Linking entities (NEL)")
+    articles = link_article_entities(articles)
+
+    # Step 6: Detect trending topics
+    print("[6/6] Detecting trending topics")
     trending = process_trending(articles, batch_date)
 
     # Save processed data

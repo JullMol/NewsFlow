@@ -26,6 +26,7 @@ DB_CONFIG = {
     "user": os.getenv("SUPABASE_DB_USER", "postgres"),
     "password": os.getenv("SUPABASE_DB_PASSWORD", ""),
     "sslmode": "require",
+    "connect_timeout": int(os.getenv("SUPABASE_DB_TIMEOUT", "30")),
 }
 
 # Scraping Configuration

@@ -51,8 +51,20 @@ CREATE TABLE IF NOT EXISTS dim_entitas (
     entitas_id      SERIAL PRIMARY KEY,
     nama_entitas    VARCHAR(255) NOT NULL,
     tipe_entitas    VARCHAR(20) NOT NULL CHECK (tipe_entitas IN ('PERSON', 'ORGANIZATION', 'LOCATION')),
+    wikidata_id     VARCHAR(20),
+    wikipedia_url   TEXT,
+    deskripsi       TEXT,
+    nel_matched     BOOLEAN DEFAULT FALSE,
     UNIQUE (nama_entitas, tipe_entitas)
 );
+"""
+
+# Migration: add NEL columns to existing dim_entitas table
+ALTER_DIM_ENTITAS_NEL = """
+ALTER TABLE dim_entitas ADD COLUMN IF NOT EXISTS wikidata_id   VARCHAR(20);
+ALTER TABLE dim_entitas ADD COLUMN IF NOT EXISTS wikipedia_url TEXT;
+ALTER TABLE dim_entitas ADD COLUMN IF NOT EXISTS deskripsi     TEXT;
+ALTER TABLE dim_entitas ADD COLUMN IF NOT EXISTS nel_matched   BOOLEAN DEFAULT FALSE;
 """
 
 CREATE_FACT_ARTIKEL = """
@@ -229,6 +241,7 @@ def get_full_schema_ddl(use_partition: bool = True) -> str:
         CREATE_DIM_PENULIS,
         CREATE_DIM_SENTIMEN,
         CREATE_DIM_ENTITAS,
+        ALTER_DIM_ENTITAS_NEL,  # Migration: add NEL columns to existing table
         CREATE_FACT_ARTIKEL if use_partition else CREATE_FACT_ARTIKEL_NO_PARTITION,
     ]
     if use_partition:

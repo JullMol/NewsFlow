@@ -18,6 +18,8 @@ sys.path.insert(0, str(ROOT_DIR))
 from config import REQUEST_HEADERS, CATEGORY_MAP
 from preprocessor.sentiment_analyzer import SentimentAnalyzer
 from preprocessor.embedding_generator import EmbeddingGenerator
+from preprocessor.ner_extractor import extract_article_entities
+from preprocessor.nel_linker import link_article_entities
 from feeder.loader import load_batch
 
 SAMPLES_PER_MONTH = 5
@@ -407,6 +409,13 @@ def run_historical_extraction():
         total_scraped += len(batch_articles)
 
         csv_file.flush()
+
+        # NER + NEL — run on the full batch before loading to DB
+        if batch_articles:
+            print(f"  [NER] Extracting entities...")
+            batch_articles = extract_article_entities(batch_articles)
+            print(f"  [NEL] Linking entities to Wikipedia/Wikidata...")
+            batch_articles = link_article_entities(batch_articles)
 
         if batch_articles and db_available:
             db_ok = False
