@@ -3,114 +3,379 @@ import os
 import requests
 import time
 import random
-from bs4 import BeautifulSoup
-from datetime import datetime
-from tqdm import tqdm
 import re
+import csv
+from bs4 import BeautifulSoup
+from datetime import datetime, date, timedelta
+from tqdm import tqdm
+from pathlib import Path
 
-# Menambahkan path root agar folder feeder, preprocessor, dll bisa terbaca
-sys.path.append(os.getcwd())
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT_DIR))
 
-from feeder.loader import load_batch, get_connection
+from config import REQUEST_HEADERS, CATEGORY_MAP
 from preprocessor.sentiment_analyzer import SentimentAnalyzer
 from preprocessor.embedding_generator import EmbeddingGenerator
+from feeder.loader import load_batch
 
-SAMPLES_PER_MONTH = 100
-START_YEAR = 2024
-END_YEAR = 2026
-END_MONTH = 4
+SAMPLES_PER_MONTH = 5
+PAGES_PER_DATE    = 5
+DELAY_BETWEEN_REQUESTS = 1.5
+DELAY_BETWEEN_ARTICLES = 0.8
 
-analyzer = SentimentAnalyzer()
-embedder = EmbeddingGenerator()
+START_DATE = date.today() - timedelta(days=730)
+END_DATE   = date.today()
 
-def get_articles_from_month(year, month):
-    sitemap_url = f"https://www.kompas.com/sitemap_{year}_{str(month).zfill(2)}.xml"
-    print(f"\n[+] Mencoba sitemap: {sitemap_url}")
-    
+CSV_OUTPUT = ROOT_DIR / "data" / "raw" / "kompas_historical.csv"
+
+CSV_FIELDNAMES = [
+    "url", "title", "content", "author", "category",
+    "tags", "published_at", "word_count",
+    "sentiment_label", "sentiment_score",
+    "scraped_at", "is_valid",
+]
+
+def load_already_scraped_dates() -> set[str]:
+    scraped = set()
+    if not CSV_OUTPUT.exists():
+        return scraped
     try:
-        resp = requests.get(sitemap_url, timeout=20)
-        if resp.status_code != 200:
-            return []
-            
-        soup = BeautifulSoup(resp.content, "xml")
-        urls = [loc.text for loc in soup.find_all("loc")]
-        
-        if not urls:
-            return []
-            
-        # Ambil sampel acak supaya data menyebar di seluruh bulan tersebut
-        sample_size = min(len(urls), SAMPLES_PER_MONTH)
-        return random.sample(urls, sample_size)
+        with open(CSV_OUTPUT, "r", encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                pub = row.get("published_at", "")
+                if pub and len(pub) >= 10:
+                    scraped.add(pub[:10])
     except Exception as e:
-        print(f"[-] Error: {e}")
-        return []
+        pass
+    return scraped
 
-def scrape_article_detail(url):
+def generate_sample_dates(
+    start: date, end: date, samples_per_month: int
+) -> list[date]:
+    dates_by_month: dict[tuple, list[date]] = {}
+    current = start
+    while current <= end:
+        key = (current.year, current.month)
+        dates_by_month.setdefault(key, []).append(current)
+        current += timedelta(days=1)
+
+    sampled: list[date] = []
+    for (year, month), days in sorted(dates_by_month.items()):
+        n = min(samples_per_month, len(days))
+        sampled.extend(sorted(random.sample(days, n)))
+
+    return sampled
+
+def extract_category_from_url(url: str) -> str:
     try:
-        resp = requests.get(url, timeout=15)
-        if resp.status_code != 200: return None
-        soup = BeautifulSoup(resp.content, "html.parser")
-        
-        title = soup.find("h1").get_text(strip=True) if soup.find("h1") else "No Title"
-        content_div = soup.find("div", class_="read__content") or soup.find("div", class_="article__content")
-        content = content_div.get_text(strip=True) if content_div else ""
-        
-        # Ekstrak tanggal dari URL atau meta
-        # Format URL Kompas biasanya: .../read/YYYY/MM/DD/...
-        date_match = re.search(r'/read/(\d{4})/(\d{2})/(\d{2})/', url)
-        if date_match:
-            pub_date = f"{date_match.group(1)}-{date_match.group(2)}-{date_match.group(3)}"
+        parts = url.split("/")
+        domain_part = parts[2]
+
+        if domain_part.startswith("www."):
+            if len(parts) > 3 and parts[3] != "read":
+                section = parts[3].lower()
+                return CATEGORY_MAP.get(section, section.title())
+            return "News"
         else:
-            pub_date = datetime.now().strftime("%Y-%m-%d")
+            subdomain = domain_part.split(".")[0].lower()
+            return CATEGORY_MAP.get(subdomain, subdomain.title())
+    except Exception:
+        return "Other"
+
+def get_article_urls_from_indeks(
+    target_date: date, max_pages: int = PAGES_PER_DATE
+) -> list[dict]:
+    all_articles: list[dict] = []
+    seen_urls: set[str] = set()
+    date_str = target_date.strftime("%Y-%m-%d")
+
+    for page in range(1, max_pages + 1):
+        url = f"https://indeks.kompas.com/?site=all&date={date_str}&page={page}"
+
+        try:
+            resp = requests.get(url, headers=REQUEST_HEADERS, timeout=20)
+            if resp.status_code != 200:
+                break
+
+            soup = BeautifulSoup(resp.text, "html.parser")
+            candidate_links = soup.select("a.article-link")
+
+            if not candidate_links:
+                candidate_links = [
+                    a for a in soup.find_all("a", href=True)
+                    if "/read/" in a.get("href", "")
+                    and "kompas.com" in a.get("href", "")
+                ]
+
+            raw_count = 0
+            for link in candidate_links:
+                href = link.get("href", "")
+                if not href or "/read/" not in href or "kompas.com" not in href:
+                    continue
+                raw_count += 1
+
+                if href in seen_urls:
+                    continue
+                seen_urls.add(href)
+
+                title_text = link.get_text(strip=True)
+                if not title_text or len(title_text) < 10:
+                    continue
+
+                date_match = re.search(r"/read/(\d{4})/(\d{2})/(\d{2})/", href)
+                article_date = (
+                    f"{date_match.group(1)}-{date_match.group(2)}-{date_match.group(3)}"
+                    if date_match else date_str
+                )
+
+                all_articles.append({
+                    "url":      href,
+                    "title":    title_text,
+                    "category": extract_category_from_url(href),
+                    "pub_date": article_date,
+                })
+
+            if raw_count < 3:
+                break
+
+            time.sleep(DELAY_BETWEEN_REQUESTS)
+
+        except Exception as e:
+            print(f"[WARN] Error parsing index {date_str} page {page}: {e}")
+            break
+
+    return all_articles
+
+def scrape_article_content(url: str) -> dict | None:
+    try:
+        resp = requests.get(url, headers=REQUEST_HEADERS, timeout=15)
+        if resp.status_code != 200:
+            return None
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        h1 = soup.find("h1")
+        title = h1.get_text(strip=True) if h1 else None
+        if not title:
+            og = soup.find("meta", property="og:title")
+            title = og.get("content", "").strip() if og else None
+        if not title:
+            return None
+
+        content_div = (
+            soup.find("div", class_="read__content")
+            or soup.find("div", class_="article__content")
+            or soup.find("div", {"itemprop": "articleBody"})
+            or soup.find("article")
+        )
+        content = ""
+        if content_div:
+            for el in content_div.find_all(
+                ["script", "style", "ins", "aside"],
+            ):
+                el.decompose()
+            paragraphs = content_div.find_all("p")
+            content = " ".join(
+                p.get_text(strip=True) for p in paragraphs
+                if p.get_text(strip=True)
+            )
+
+        if len(content) < 50:
+            og_desc = soup.find("meta", property="og:description")
+            if og_desc:
+                content = og_desc.get("content", "").strip()
+
+        if len(content) < 50:
+            return None
+
+        author_tag = (
+            soup.find("div", class_="read__credit")
+            or soup.find("span", class_="read__author")
+            or soup.find("a", class_="read__author")
+            or soup.find("meta", attrs={"name": "author"})
+        )
+        if author_tag:
+            author = (
+                author_tag.get("content", "")
+                if author_tag.name == "meta"
+                else author_tag.get_text(strip=True)
+            )
+        else:
+            author = "Kompas.com"
+            
+        author = (
+            author.replace("Penulis:", "")
+                  .replace("Kontributor:", "")
+                  .strip()
+        )
+        if not author or len(author) > 200:
+            author = "Kompas.com"
+
+        tags: list[str] = []
+        tag_container = soup.find("ul", class_="tag__article__wrap")
+        if tag_container:
+            tags = [
+                li.get_text(strip=True)
+                for li in tag_container.find_all("li")
+                if li.get_text(strip=True)
+            ]
+        if not tags:
+            meta_kw = soup.find("meta", attrs={"name": "keywords"})
+            if meta_kw and meta_kw.get("content"):
+                tags = [t.strip() for t in meta_kw["content"].split(",") if t.strip()]
 
         return {
-            "url": url,
-            "title": title,
-            "content": content,
-            "published_at": pub_date,
-            "category": url.split('/')[2].split('.')[0] if len(url.split('/')) > 2 else "news",
-            "author": "Kompas Scraper"
+            "title":      title,
+            "content":    content,
+            "author":     author,
+            "tags":       tags,
+            "word_count": len(content.split()),
         }
-    except:
+
+    except Exception:
         return None
 
-import re # Tambahkan import re di atas
-
 def run_historical_extraction():
-    conn = get_connection()
-    print(f"[*] Memulai penarikan data historis {START_YEAR} - {END_YEAR}")
-    
-    total_inserted = 0
-    
-    for year in range(START_YEAR, END_YEAR + 1):
-        for month in range(1, 13):
-            if year == END_YEAR and month > END_MONTH:
-                break
-                
-            urls = get_articles_from_month(year, month)
-            if not urls: continue
-            
-            batch_data = []
-            print(f"[*] Memproses {len(urls)} artikel untuk {year}-{month}...")
-            
-            for url in tqdm(urls, desc=f"Scraping {year}-{month}"):
-                raw_art = scrape_article_detail(url)
-                if raw_art and len(raw_art['content']) > 100:
-                    # Jalankan AI Pipeline (Sentiment & Embedding)
-                    sentiment_res = analyzer.analyze(raw_art['content'])
-                    raw_art['sentiment_score'] = sentiment_res['score']
-                    raw_art['sentiment_label'] = sentiment_res['label']
-                    raw_art['embedding'] = embedder.generate(raw_art['content'])
-                    
-                    batch_data.append(raw_art)
-            
-            if batch_data:
-                load_batch(conn, batch_data)
-                total_inserted += len(batch_data)
-                print(f"[OK] Berhasil memasukkan {len(batch_data)} artikel untuk {year}-{month}")
+    print("Kompas.com Historical Data Scraper")
+    print(f"Period: {START_DATE} to {END_DATE}")
+    print(f"Sampling: {SAMPLES_PER_MONTH} dates/month | {PAGES_PER_DATE} pages/date\n")
 
-    conn.close()
-    print(f"\n[DONE] Selesai! Total {total_inserted} data historis baru telah masuk ke Supabase.")
+    all_sample_dates = generate_sample_dates(START_DATE, END_DATE, SAMPLES_PER_MONTH)
+
+    already_done = load_already_scraped_dates()
+    sample_dates = [
+        d for d in all_sample_dates
+        if d.strftime("%Y-%m-%d") not in already_done
+    ]
+    skipped = len(all_sample_dates) - len(sample_dates)
+    print(f"[1/4] Sample dates : {len(all_sample_dates)} total")
+    print(f"      Already scraped: {skipped} dates (skipped)")
+    print(f"      Remaining      : {len(sample_dates)} dates")
+
+    print("\n[2/4] Loading NLP models...")
+    analyzer = SentimentAnalyzer()
+    embedder = EmbeddingGenerator()
+
+    print("\n[3/4] Starting data extraction...\n")
+
+    total_scraped = 0
+    total_loaded  = 0
+    failed_dates:  list[date] = []
+
+    csv_exists = CSV_OUTPUT.exists()
+    csv_file   = open(CSV_OUTPUT, "a", newline="", encoding="utf-8")
+    csv_writer = csv.DictWriter(csv_file, fieldnames=CSV_FIELDNAMES)
+    if not csv_exists:
+        csv_writer.writeheader()
+
+    for idx, target_date in enumerate(sample_dates, 1):
+        month_label = target_date.strftime("%Y-%m")
+        print(f"\n[{idx}/{len(sample_dates)}] {target_date} (Month: {month_label})")
+
+        article_infos = get_article_urls_from_indeks(target_date, PAGES_PER_DATE)
+        if not article_infos:
+            print(f"[WARN] No articles found for {target_date}")
+            failed_dates.append(target_date)
+            continue
+
+        start_str = START_DATE.strftime("%Y-%m-%d")
+        end_str   = END_DATE.strftime("%Y-%m-%d")
+        before = len(article_infos)
+        article_infos = [
+            a for a in article_infos
+            if start_str <= a["pub_date"] <= end_str
+        ]
+        filtered_out = before - len(article_infos)
+
+        if not article_infos:
+            print(f"[WARN] All articles outside date range, skipping")
+            continue
+
+        msg = f"[INFO] Found {len(article_infos)} article URLs"
+        if filtered_out:
+            msg += f" ({filtered_out} filtered out of range)"
+        print(msg)
+
+        batch_articles: list[dict] = []
+        for art_info in tqdm(article_infos, desc=f"Scraping {target_date}", leave=True):
+            detail = scrape_article_content(art_info["url"])
+            if detail is None:
+                continue
+
+            article: dict = {
+                "url":       art_info["url"],
+                "title":     detail["title"],
+                "content":   detail["content"],
+                "author":    detail["author"],
+                "category":  art_info["category"],
+                "tags":      detail["tags"],
+                "pub_date":  art_info["pub_date"],
+                "published_at": art_info["pub_date"],
+                "word_count": detail["word_count"],
+                "scraped_at": datetime.now().isoformat(),
+            }
+
+            try:
+                sent = analyzer.predict_single(
+                    f"{article['title']}. {article['content'][:500]}"
+                )
+                article["sentiment_label"] = sent["label"]
+                article["sentiment_score"] = sent["score"]
+            except Exception:
+                article["sentiment_label"] = "neutral"
+                article["sentiment_score"] = 0.5
+
+            try:
+                article["embedding"] = embedder.generate(
+                    f"{article['title']}. {article['content'][:512]}"
+                )
+            except Exception:
+                article["embedding"] = None
+
+            batch_articles.append(article)
+
+            csv_writer.writerow({
+                "url":             article["url"],
+                "title":           article["title"],
+                "content":         article["content"][:2000],
+                "author":          article["author"],
+                "category":        article["category"],
+                "tags":            ", ".join(article["tags"]) if article["tags"] else "",
+                "published_at":    article["pub_date"],
+                "word_count":      article["word_count"],
+                "sentiment_label": article["sentiment_label"],
+                "sentiment_score": article["sentiment_score"],
+                "scraped_at":      article["scraped_at"],
+                "is_valid":        True,
+            })
+
+            time.sleep(DELAY_BETWEEN_ARTICLES)
+
+        total_scraped += len(batch_articles)
+
+        csv_file.flush()
+
+        if batch_articles:
+            try:
+                loaded = load_batch(batch_articles)
+                total_loaded += loaded
+                print(f"[OK] {len(batch_articles)} articles scraped, {loaded} loaded to DB")
+            except Exception as e:
+                print(f"[ERR] Error loading to DB: {e}")
+                print(f"Data saved to CSV: {CSV_OUTPUT}")
+
+    csv_file.close()
+
+    print(f"\n[4/4] SUMMARY")
+    print(f"Total dates sampled : {len(all_sample_dates)}")
+    print(f"Dates skipped       : {skipped}")
+    print(f"Dates processed     : {len(sample_dates)}")
+    print(f"Total articles      : {total_scraped} scraped, {total_loaded} loaded")
+    print(f"CSV saved at        : {CSV_OUTPUT}")
+    if failed_dates:
+        print(f"[WARN] Failed dates ({len(failed_dates)}): "
+              f"{', '.join(str(d) for d in failed_dates[:10])}")
 
 if __name__ == "__main__":
     run_historical_extraction()

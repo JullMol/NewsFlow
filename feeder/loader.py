@@ -140,6 +140,16 @@ def upsert_dim_entitas(conn, nama: str, tipe: str) -> int:
     DIM_CACHE["entitas"][cache_key] = e_id
     return e_id
 
+def _invalidate_dim_cache(pub_date, category, author):
+    """
+    Buang entri DIM_CACHE yang mungkin sudah stale akibat rollback.
+    Dipanggil setiap kali ada error agar ghost-ID tidak dipakai ulang.
+    """
+    DIM_CACHE["waktu"].pop(pub_date, None)
+    DIM_CACHE["kategori"].pop(category, None)
+    DIM_CACHE["penulis"].pop(author, None)
+
+
 def load_article(conn, article: dict) -> int | None:
     cur = conn.cursor()
 
@@ -152,11 +162,23 @@ def load_article(conn, article: dict) -> int | None:
     except ValueError:
         return None
 
-    # Upsert dimensions
-    waktu_id = upsert_dim_waktu(conn, pub_date)
-    kategori_id = upsert_dim_kategori(conn, article.get("category", "Lainnya"))
-    penulis_id = upsert_dim_penulis(conn, article.get("author", "Kompas.com"))
-    sentimen_id = get_sentimen_id(conn, article.get("sentiment_label", "neutral"))
+    category = article.get("category", "Lainnya")
+    author   = article.get("author", "Kompas.com")
+
+    # ── Upsert dimensions ──
+    # Dimensi di-upsert dulu. Jika berhasil, mereka visible dalam
+    # transaksi yang sama. Kita pakai SAVEPOINT agar jika fact insert
+    # gagal, hanya fact yang di-rollback — bukan dimension-nya.
+    try:
+        waktu_id    = upsert_dim_waktu(conn, pub_date)
+        kategori_id = upsert_dim_kategori(conn, category)
+        penulis_id  = upsert_dim_penulis(conn, author)
+        sentimen_id = get_sentimen_id(conn, article.get("sentiment_label", "neutral"))
+    except Exception as e:
+        print(f"  [ERROR] Dim upsert failed for {article['url']}: {e}")
+        conn.rollback()
+        _invalidate_dim_cache(pub_date, category, author)
+        return None
 
     # Prepare embedding
     embedding = article.get("embedding")
@@ -164,11 +186,14 @@ def load_article(conn, article: dict) -> int | None:
     if embedding:
         embedding_str = "[" + ",".join(str(x) for x in embedding) + "]"
 
-    # Prepare tags
     tags = article.get("tags", [])
 
-    # Upsert fact_artikel
+    # ── Fact insert — protected by SAVEPOINT ──
+    # Rollback ke savepoint hanya membatalkan fact insert,
+    # dimension upserts di atas tetap ada dalam transaksi.
+    artikel_id = None
     try:
+        cur.execute("SAVEPOINT sp_fact")
         cur.execute("""
             INSERT INTO fact_artikel (
                 url, judul, konten, waktu_id, kategori_id, penulis_id,
@@ -178,13 +203,13 @@ def load_article(conn, article: dict) -> int | None:
                 %s, %s, %s, %s, %s, %s, %s, %s, %s::vector, %s, %s, %s
             )
             ON CONFLICT (url, tanggal_publikasi) DO UPDATE SET
-                judul = EXCLUDED.judul,
-                konten = EXCLUDED.konten,
-                sentimen_id = EXCLUDED.sentimen_id,
+                judul          = EXCLUDED.judul,
+                konten         = EXCLUDED.konten,
+                sentimen_id    = EXCLUDED.sentimen_id,
                 sentimen_score = EXCLUDED.sentimen_score,
-                embedding = EXCLUDED.embedding,
-                jumlah_kata = EXCLUDED.jumlah_kata,
-                tags = EXCLUDED.tags
+                embedding      = EXCLUDED.embedding,
+                jumlah_kata    = EXCLUDED.jumlah_kata,
+                tags           = EXCLUDED.tags
             RETURNING artikel_id
         """, (
             article["url"], article["title"], article.get("content", ""),
@@ -195,15 +220,20 @@ def load_article(conn, article: dict) -> int | None:
         ))
         result = cur.fetchone()
         artikel_id = result[0] if result else None
+        cur.execute("RELEASE SAVEPOINT sp_fact")
     except Exception as e:
-        print(f"  [ERROR] Loading article {article['url']}: {e}")
-        conn.rollback()
+        cur.execute("ROLLBACK TO SAVEPOINT sp_fact")
+        cur.execute("RELEASE SAVEPOINT sp_fact")
+        print(f"  [ERROR] Fact insert failed for {article['url']}: {e}")
+        # Invalidate cache agar ID tidak dipakai ulang di artikel berikutnya
+        _invalidate_dim_cache(pub_date, category, author)
         return None
 
-    # Load entities into bridge table
+    # ── Load entities ke bridge table ──
     if artikel_id and article.get("entities"):
         for entity in article["entities"]:
             try:
+                cur.execute("SAVEPOINT sp_entity")
                 entitas_id = upsert_dim_entitas(conn, entity["name"], entity["type"])
                 cur.execute("""
                     INSERT INTO bridge_artikel_entitas (artikel_id, entitas_id, frekuensi)
@@ -211,8 +241,10 @@ def load_article(conn, article: dict) -> int | None:
                     ON CONFLICT (artikel_id, entitas_id) DO UPDATE SET
                         frekuensi = EXCLUDED.frekuensi
                 """, (artikel_id, entitas_id, entity.get("count", 1)))
+                cur.execute("RELEASE SAVEPOINT sp_entity")
             except Exception:
-                conn.rollback()
+                cur.execute("ROLLBACK TO SAVEPOINT sp_entity")
+                cur.execute("RELEASE SAVEPOINT sp_entity")
 
     return artikel_id
 

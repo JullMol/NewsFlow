@@ -5,7 +5,7 @@
 <h1 align="center">📰 Kompas.com News Data Warehouse</h1>
 
 <p align="center">
-  <strong>End-to-End ETL Pipeline dengan NLP untuk Analisis Tren dan Sentimen Berita Indonesia</strong>
+  <strong>End-to-End ETL Pipeline with NLP for Trend and Sentiment Analysis of Indonesian News</strong>
 </p>
 
 <p align="center">
@@ -18,61 +18,61 @@
 
 ---
 
-## 📋 Daftar Isi
+## 📋 Table of Contents
 
-- [Tentang Proyek](#-tentang-proyek)
-- [Rumusan Masalah](#-rumusan-masalah)
-- [Arsitektur Sistem](#-arsitektur-sistem)
-- [Skema Data Warehouse](#-skema-data-warehouse-star-schema)
-- [Struktur Folder](#-struktur-folder)
+- [About the Project](#-about-the-project)
+- [Problem Statement](#-problem-statement)
+- [System Architecture](#-system-architecture)
+- [Data Warehouse Schema](#-data-warehouse-schema-star-schema)
+- [Folder Structure](#-folder-structure)
 - [Tech Stack](#-tech-stack)
-- [Cara Instalasi](#-cara-instalasi)
-- [Cara Menjalankan](#-cara-menjalankan)
-- [Pipeline NLP](#-pipeline-nlp)
-- [OLAP & Analisis](#-olap--analisis-multidimensi)
-- [Orchestration dengan Airflow](#-orchestration-dengan-airflow)
-- [Kontributor](#-kontributor)
+- [Installation Guide](#-installation-guide)
+- [How to Run](#-how-to-run)
+- [NLP Pipeline](#-nlp-pipeline)
+- [OLAP & Multidimensional Analysis](#-olap--multidimensional-analysis)
+- [Orchestration with Airflow](#-orchestration-with-airflow)
+- [Contributors](#-contributors)
 
 ---
 
-## 🎯 Tentang Proyek
+## 🎯 About the Project
 
-Proyek ini membangun sebuah **Data Warehouse** komprehensif yang mengakuisisi, mentransformasi, dan menganalisis data berita dari **Kompas.com** — portal berita terbesar di Indonesia. Sistem ini menerapkan pipeline ETL (Extract, Transform, Load) lengkap dengan komponen **Natural Language Processing (NLP)** untuk bahasa Indonesia, termasuk analisis sentimen, Named Entity Recognition (NER), dan pembuatan vector embedding untuk semantic search.
+This project builds a comprehensive **Data Warehouse** that acquires, transforms, and analyzes news data from **Kompas.com** — the largest news portal in Indonesia. This system implements an end-to-end ETL (Extract, Transform, Load) pipeline with **Natural Language Processing (NLP)** components for the Indonesian language, including sentiment analysis, Named Entity Recognition (NER), and vector embedding generation for semantic search.
 
-Data warehouse ini dirancang untuk mendukung analisis **longitudinal** (2+ tahun data historis) melalui OLAP cube menggunakan **Atoti**, memungkinkan eksplorasi tren berita, distribusi sentimen, dan deteksi topik trending secara multidimensi.
+The data warehouse is designed to support **longitudinal** analysis (2+ years of historical data) through OLAP cubes using **Atoti**, enabling the exploration of news trends, sentiment distribution, and trending topic detection in a multidimensional way.
 
 ---
 
-## 🔍 Rumusan Masalah
+## 🔍 Problem Statement
 
-Kompas.com memproduksi **ratusan artikel berita per hari** lintas kategori (nasional, ekonomi, teknologi, olahraga, dll). Tantangan utama:
+Kompas.com produces **hundreds of news articles per day** across various categories (national, economy, technology, sports, etc.). Key challenges:
 
-| No | Tantangan | Solusi yang Diterapkan |
+| No | Challenge | Implemented Solution |
 |:--:|-----------|----------------------|
-| 1 | Data berita bersifat **tidak terstruktur** dan tersebar di banyak halaman web | Web scraping berbasis **Sitemap XML** dan parsing halaman indeks |
-| 2 | **Tidak ada API publik** resmi dari Kompas.com | Scraper otomatis dengan rate limiting dan error recovery |
-| 3 | Analisis tren membutuhkan **NLP khusus bahasa Indonesia** | Pipeline IndoBERT (sentimen) + Multilingual SentenceTransformers (embedding) |
-| 4 | Volume data sangat besar untuk analisis longitudinal | **Star Schema** dengan partitioning bulanan dan materialized views |
-| 5 | Dibutuhkan eksplorasi data secara **multidimensi** | OLAP Cube via **Atoti** dengan hierarchies dan measures kustom |
+| 1 | News data is **unstructured** and scattered across many web pages | Web scraping based on **XML Sitemaps** and index page parsing |
+| 2 | **No official public API** from Kompas.com | Automated scraper with rate limiting and error recovery |
+| 3 | Trend analysis requires **Indonesian-specific NLP** | IndoBERT pipeline (sentiment) + Multilingual SentenceTransformers (embeddings) |
+| 4 | Data volume is too large for longitudinal analysis | **Star Schema** with monthly partitioning and materialized views |
+| 5 | Requires **multidimensional** data exploration | OLAP Cube via **Atoti** with custom hierarchies and measures |
 
-### Target Insight
+### Target Insights
 
 ```
-📊 Tren volume berita per kategori per bulan/tahun
-📈 Distribusi dan tren sentimen berita harian
-🏷️  Top entitas (orang, organisasi, lokasi) yang paling sering muncul
-🔥 Deteksi topik trending berdasarkan frekuensi keyword
-🔎 Semantic search: cari artikel berdasarkan kemiripan makna (vector similarity)
+📊 Trend of news volume per category per month/year
+📈 Distribution and trend of daily news sentiment
+🏷️ Top entities (people, organizations, locations) that appear most frequently
+🔥 Trending topic detection based on keyword frequency
+🔎 Semantic search: find articles based on semantic similarity (vector similarity)
 ```
 
 ---
 
-## 🏗 Arsitektur Sistem
+## 🏗 System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      Apache Airflow (Orchestrator)                  │
-│                    Menjalankan DAG harian secara otomatis            │
+│                     Runs the daily DAG automatically                 │
 └──────────┬──────────┬──────────┬──────────┬──────────┬──────────────┘
            │          │          │          │          │
      ┌─────▼─────┐   │    ┌─────▼─────┐   │    ┌─────▼─────┐
@@ -80,7 +80,7 @@ Kompas.com memproduksi **ratusan artikel berita per hari** lintas kategori (nasi
      │           │   │    │           │   │    │           │
      │ • Sitemap │   │    │ • Clean   │   │    │ • Upsert  │
      │   Parser  │   │    │ • IndoBERT│   │    │   Dims    │
-     │ • Article │   │    │   Sentimen│   │    │ • Insert  │
+     │ • Article │   │    │   Sentiment│  │    │ • Insert  │
      │   Scraper │   │    │ • NER     │   │    │   Facts   │
      │ • Histori-│   │    │ • Embed-  │   │    │ • Refresh │
      │   cal     │   │    │   dings   │   │    │   MVs     │
@@ -105,7 +105,7 @@ Kompas.com memproduksi **ratusan artikel berita per hari** lintas kategori (nasi
 
 ---
 
-## ⭐ Skema Data Warehouse (Star Schema)
+## ⭐ Data Warehouse Schema (Star Schema)
 
 ```
                            ┌──────────────┐
@@ -150,67 +150,67 @@ Kompas.com memproduksi **ratusan artikel berita per hari** lintas kategori (nasi
                         └────────────────────┘
 ```
 
-### Fitur Database Utama
+### Main Database Features
 
-| Fitur | Detail |
+| Feature | Details |
 |-------|--------|
-| **Partitioning** | `fact_artikel` dipartisi per bulan (`PARTITION BY RANGE`) untuk query performa tinggi |
-| **pgvector** | Ekstensi PostgreSQL untuk menyimpan dan mencocokkan vector embedding 384-dimensi |
-| **pg_trgm** | Trigram index pada kolom `judul` untuk fuzzy text search |
-| **Materialized Views** | 3 MV untuk pre-aggregasi: artikel per kategori/bulan, sentimen harian, top entitas |
+| **Partitioning** | `fact_artikel` is partitioned by month (`PARTITION BY RANGE`) for high-performance queries |
+| **pgvector** | PostgreSQL extension to store and match 384-dimensional vector embeddings |
+| **pg_trgm** | Trigram index on the `judul` column for fuzzy text search |
+| **Materialized Views** | 3 MVs for pre-aggregation: articles per category/month, daily sentiment, top entities |
 
 ---
 
-## 📁 Struktur Folder
+## 📁 Folder Structure
 
 ```
 📦 kompas-news-data-warehouse/
-├── 📄 README.md                    # Dokumentasi proyek
-├── 📄 requirements.txt             # Dependensi Python
-├── 📄 .env.example                 # Template konfigurasi environment
-├── 📄 .gitignore                   # File yang dikecualikan dari Git
-├── 📄 config.py                    # Konfigurasi global (path, model, DB)
-├── 📄 setup_database.py            # Script inisialisasi skema database
+├── 📄 README.md                    # Project documentation
+├── 📄 requirements.txt             # Python dependencies
+├── 📄 .env.example                 # Environment configuration template
+├── 📄 .gitignore                   # Files excluded from Git
+├── 📄 config.py                    # Global configuration (paths, models, DB)
+├── 📄 setup_database.py            # Database schema initialization script
 │
-├── 📄 run_pipeline.py              # ⚡ Pipeline utama (scrape → transform → load)
-├── 📄 run_csv_pipeline.py          # ⚡ Pipeline dari file CSV historis
+├── 📄 run_pipeline.py              # ⚡ Main pipeline (scrape → transform → load)
+├── 📄 run_csv_pipeline.py          # ⚡ Pipeline from historical CSV files
 │
-├── 🐳 docker-compose.yml           # Docker Compose untuk Airflow
-├── 🐳 Dockerfile.airflow           # Dockerfile custom Airflow + dependencies
+├── 🐳 docker-compose.yml           # Docker Compose for Airflow
+├── 🐳 Dockerfile.airflow           # Custom Airflow Dockerfile + dependencies
 │
-├── 📂 scraper/                     # 🔍 Modul Extract
+├── 📂 scraper/                     # 🔍 Extract module
 │   ├── __init__.py
-│   ├── sitemap_parser.py           # Parser sitemap XML & halaman indeks
-│   ├── article_scraper.py          # Scraper konten artikel
-│   └── historical_scraper.py       # Scraper data historis (2024-2026)
+│   ├── sitemap_parser.py           # XML sitemap & index page parser
+│   ├── article_scraper.py          # Article content scraper
+│   └── historical_scraper.py       # Historical data scraper (2024-2026)
 │
-├── 📂 preprocessor/                # 🧠 Modul Transform (NLP)
+├── 📂 preprocessor/                # 🧠 Transform module (NLP)
 │   ├── __init__.py
-│   ├── text_cleaner.py             # Pembersihan teks (HTML, stopwords, Sastrawi)
-│   ├── sentiment_analyzer.py       # Analisis sentimen (IndoBERT)
+│   ├── text_cleaner.py             # Text cleaning (HTML, stopwords, Sastrawi)
+│   ├── sentiment_analyzer.py       # Sentiment analysis (IndoBERT)
 │   ├── embedding_generator.py      # Vector embedding (Multilingual MiniLM)
 │   ├── ner_extractor.py            # Named Entity Recognition
-│   └── trending_detector.py        # Deteksi topik trending
+│   └── trending_detector.py        # Trending topic detection
 │
-├── 📂 feeder/                      # 💾 Modul Load
+├── 📂 feeder/                      # 💾 Load module
 │   ├── __init__.py
-│   ├── schema.py                   # DDL skema (tabel, partisi, index, MV)
-│   ├── loader.py                   # Upsert data ke Supabase (batch + cache)
-│   └── benchmark.py                # Benchmark performa ingestion
+│   ├── schema.py                   # DDL schema (tables, partitions, indexes, MVs)
+│   ├── loader.py                   # Data upsert to Supabase (batch + cache)
+│   └── benchmark.py                # Ingestion performance benchmark
 │
 ├── 📂 dags/                        # ✈️ Airflow DAGs
-│   └── kompas_etl_dag.py           # DAG harian ETL pipeline
+│   └── kompas_etl_dag.py           # Daily ETL pipeline DAG
 │
 ├── 📂 atoti_analysis/              # 📊 OLAP Analysis
 │   ├── __init__.py
 │   └── olap_cube.py                # Atoti OLAP cube + semantic search
 │
-├── 📂 data/                        # 📁 Direktori data (Git-ignored)
-│   ├── raw/                        # Data mentah hasil scraping
-│   └── processed/                  # Data hasil transformasi NLP
+├── 📂 data/                        # 📁 Data directory (Git-ignored)
+│   ├── raw/                        # Raw scraped data
+│   └── processed/                  # Transformed NLP data
 │
-└── 📂 docs/                        # 📚 Dokumentasi tambahan
-    └── architecture.png            # Diagram arsitektur
+└── 📂 docs/                        # 📚 Additional documentation
+    └── architecture.png            # Architecture diagram
 ```
 
 ---
@@ -218,37 +218,37 @@ Kompas.com memproduksi **ratusan artikel berita per hari** lintas kategori (nasi
 ## 🛠 Tech Stack
 
 ### Core Pipeline
-| Komponen | Teknologi | Fungsi |
+| Component | Technology | Function |
 |----------|-----------|--------|
-| **Web Scraping** | `requests`, `BeautifulSoup4`, `lxml` | Akuisisi data dari Kompas.com via sitemap XML |
-| **Data Processing** | `pandas`, `numpy` | Manipulasi dan pembersihan dataframe |
-| **Database** | `PostgreSQL` (Supabase), `psycopg2` | Penyimpanan data warehouse cloud |
-| **Vector DB** | `pgvector` | Penyimpanan dan pencarian vector embedding |
+| **Web Scraping** | `requests`, `BeautifulSoup4`, `lxml` | Data acquisition from Kompas.com via XML sitemaps |
+| **Data Processing** | `pandas`, `numpy` | Dataframe manipulation and cleaning |
+| **Database** | `PostgreSQL` (Supabase), `psycopg2` | Cloud data warehouse storage |
+| **Vector DB** | `pgvector` | Storage and search for vector embeddings |
 
 ### NLP & Machine Learning
-| Model | Arsitektur | Fungsi |
+| Model | Architecture | Function |
 |-------|------------|--------|
-| **IndoBERT Sentiment** | `mdhugol/indonesia-bert-sentiment-classification` | Klasifikasi sentimen bahasa Indonesia (positif/netral/negatif) |
-| **Multilingual MiniLM** | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | Pembuatan vector embedding 384-dimensi untuk semantic search |
-| **Sastrawi** | Rule-based stemmer | Stemming kata bahasa Indonesia |
+| **IndoBERT Sentiment** | `mdhugol/indonesia-bert-sentiment-classification` | Indonesian sentiment classification (positive/neutral/negative) |
+| **Multilingual MiniLM** | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | 384-dimensional vector embedding generation for semantic search |
+| **Sastrawi** | Rule-based stemmer | Stemming Indonesian words |
 
 ### Orchestration & Visualization
-| Teknologi | Fungsi |
+| Technology | Function |
 |-----------|--------|
-| **Apache Airflow** | Orkestrasi DAG harian (Docker-based) |
-| **Atoti** | OLAP cube engine untuk analisis multidimensi |
-| **JupyterLab** | Eksplorasi data interaktif |
+| **Apache Airflow** | Daily DAG orchestration (Docker-based) |
+| **Atoti** | OLAP cube engine for multidimensional analysis |
+| **JupyterLab** | Interactive data exploration |
 
 ---
 
-## 🚀 Cara Instalasi
+## 🚀 Installation Guide
 
-### Prasyarat
+### Prerequisites
 
 - Python 3.11+
 - Git
-- Docker & Docker Compose *(opsional, untuk Airflow)*
-- Akun [Supabase](https://supabase.com) *(free tier cukup)*
+- Docker & Docker Compose *(optional, for Airflow)*
+- [Supabase](https://supabase.com) Account *(free tier is sufficient)*
 
 ### 1. Clone Repository
 
@@ -257,7 +257,7 @@ git clone https://github.com/<username>/kompas-news-data-warehouse.git
 cd kompas-news-data-warehouse
 ```
 
-### 2. Buat Virtual Environment
+### 2. Create Virtual Environment
 
 ```bash
 python -m venv venv
@@ -275,17 +275,17 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Konfigurasi Environment
+### 4. Environment Configuration
 
 ```bash
-# Salin template
+# Copy template
 cp .env.example .env
 
-# Edit dengan kredensial Supabase Anda
-# Ambil dari: Supabase Dashboard → Settings → Database
+# Edit with your Supabase credentials
+# Get them from: Supabase Dashboard → Settings → Database
 ```
 
-Isi file `.env` dengan:
+Fill the `.env` file with:
 ```env
 SUPABASE_URL=https://<project-id>.supabase.co
 SUPABASE_KEY=<service-role-key>
@@ -296,73 +296,73 @@ SUPABASE_DB_USER=postgres.<project-id>
 SUPABASE_DB_PASSWORD=<password>
 ```
 
-### 5. Inisialisasi Database
+### 5. Initialize Database
 
 ```bash
 python setup_database.py
 ```
 
-Perintah ini akan membuat seluruh tabel dimensi, tabel fakta (terpartisi per bulan), bridge table, index, dan materialized views di Supabase.
+This command will create all dimension tables, fact tables (partitioned by month), bridge tables, indexes, and materialized views in Supabase.
 
-> ⚠️ Pastikan ekstensi `vector` dan `pg_trgm` sudah diaktifkan di Supabase Dashboard → Database → Extensions.
+> ⚠️ Ensure the `vector` and `pg_trgm` extensions are enabled in Supabase Dashboard → Database → Extensions.
 
 ---
 
-## ▶️ Cara Menjalankan
+## ▶️ How to Run
 
-### Opsi A: Pipeline Penuh (Scrape + Transform + Load)
+### Option A: Full Pipeline (Scrape + Transform + Load)
 
 ```bash
-# Default: 2 tahun terakhir hingga hari ini
+# Default: Last 2 years up to today
 python run_pipeline.py
 
 # Custom date range
 python run_pipeline.py --start-date 2024-01-01 --end-date 2026-05-12
 
-# Hanya kumpulkan URL (tanpa scraping/processing)
+# Only collect URLs (without scraping/processing)
 python run_pipeline.py --collect-urls-only
 
-# Proses ulang data yang sudah di-scrape
+# Reprocess already scraped data
 python run_pipeline.py --process-only
 ```
 
-### Opsi B: Load dari File CSV Historis
+### Option B: Load from Historical CSV File
 
 ```bash
-# Pastikan file CSV ada di data/raw/kompas_news_2yr.csv
+# Make sure the CSV file is at data/raw/kompas_news_2yr.csv
 python run_csv_pipeline.py
 ```
 
-### Opsi C: Scraper Data Historis (Sitemap-based)
+### Option C: Historical Data Scraper (Sitemap-based)
 
 ```bash
 python scraper/historical_scraper.py
 ```
 
-### Opsi D: Jalankan OLAP Cube
+### Option D: Run OLAP Cube
 
 ```bash
 python atoti_analysis/olap_cube.py
 ```
 
-Akses dashboard Atoti melalui URL yang ditampilkan di terminal (biasanya `http://localhost:xxxxx`).
+Access the Atoti dashboard via the URL displayed in the terminal (usually `http://localhost:xxxxx`).
 
 ---
 
-## 🧠 Pipeline NLP
+## 🧠 NLP Pipeline
 
-Setiap artikel yang masuk melalui pipeline akan diproses melalui **5 tahap transformasi**:
+Every article that enters the pipeline will be processed through **5 transformation stages**:
 
 ```
-Artikel Mentah
+Raw Article
      │
      ▼
 ┌────────────────────────────────────────┐
 │ 1. TEXT CLEANING                       │
-│    • Hapus tag HTML                    │
-│    • Hapus stopwords bahasa Indonesia  │
+│    • Remove HTML tags                  │
+│    • Remove Indonesian stopwords       │
 │    • Stemming via Sastrawi             │
-│    • Normalisasi whitespace            │
+│    • Whitespace normalization          │
 └────────────────┬───────────────────────┘
                  ▼
 ┌────────────────────────────────────────┐
@@ -376,58 +376,58 @@ Artikel Mentah
 │ 3. VECTOR EMBEDDING (MiniLM)           │
 │    • Model: paraphrase-multilingual    │
 │    • Output: 384-dim float vector      │
-│    • Disimpan di pgvector (cosine sim) │
+│    • Stored in pgvector (cosine sim)   │
 └────────────────┬───────────────────────┘
                  ▼
 ┌────────────────────────────────────────┐
 │ 4. NAMED ENTITY RECOGNITION            │
-│    • Ekstrak: PERSON, ORGANIZATION,    │
-│      LOCATION dari judul + konten      │
-│    • Disimpan di bridge table M:N      │
+│    • Extract: PERSON, ORGANIZATION,    │
+│      LOCATION from title + content     │
+│    • Stored in M:N bridge table        │
 └────────────────┬───────────────────────┘
                  ▼
 ┌────────────────────────────────────────┐
 │ 5. TRENDING DETECTION                  │
-│    • Rolling window 7 hari             │
-│    • Threshold: 2x rata-rata frekuensi │
-│    • Output: keyword + skor trending   │
+│    • 7-day rolling window              │
+│    • Threshold: 2x average frequency   │
+│    • Output: keyword + trending score  │
 └────────────────────────────────────────┘
 ```
 
 ---
 
-## 📊 OLAP & Analisis Multidimensi
+## 📊 OLAP & Multidimensional Analysis
 
-Modul `atoti_analysis/olap_cube.py` membangun OLAP cube dengan konfigurasi:
+The `atoti_analysis/olap_cube.py` module builds an OLAP cube with the following configuration:
 
-### Hierarchies (Dimensi Drill-Down)
+### Hierarchies (Drill-Down Dimensions)
 | Hierarchy | Levels |
 |-----------|--------|
-| **Waktu** | Tahun → Kuartal → Bulan → Tanggal |
-| **Kategori** | Nama Kategori |
-| **Sentimen** | Label (positive/neutral/negative) |
-| **Penulis** | Nama Penulis |
+| **Waktu** (Time) | Year → Quarter → Month → Date |
+| **Kategori** (Category) | Category Name |
+| **Sentimen** (Sentiment) | Label (positive/neutral/negative) |
+| **Penulis** (Author) | Author Name |
 
-### Measures (Metrik)
-| Measure | Deskripsi |
+### Measures (Metrics)
+| Measure | Description |
 |---------|-----------|
-| `Jumlah Artikel` | Count artikel per sel cube |
+| `Jumlah Artikel` | Article count per cube cell |
 | `Rata-rata Sentimen` | Mean sentiment score |
-| `Rata-rata Kata` | Mean jumlah kata per artikel |
-| `Persen Positif` | Rasio artikel positif |
-| `Persen Negatif` | Rasio artikel negatif |
+| `Rata-rata Kata` | Mean word count per article |
+| `Persen Positif` | Ratio of positive articles |
+| `Persen Negatif` | Ratio of negative articles |
 
-### Contoh CUBE Query
+### CUBE Query Examples
 
 ```python
-# Distribusi artikel per kategori
+# Article distribution by category
 cube.query(m["Jumlah Artikel"], levels=[h["Kategori"]["Nama Kategori"]])
 
-# Sentimen per bulan
+# Sentiment by month
 cube.query(m["Rata-rata Sentimen"], m["Jumlah Artikel"],
            levels=[h["Waktu"]["Bulan"]])
 
-# Cross-tab: Kategori × Sentimen
+# Cross-tab: Category × Sentiment
 cube.query(m["Jumlah Artikel"],
            levels=[h["Kategori"]["Nama Kategori"], h["Sentimen"]["Label"]])
 ```
@@ -437,23 +437,23 @@ cube.query(m["Jumlah Artikel"],
 ```python
 from atoti_analysis.olap_cube import semantic_search
 
-# Cari artikel yang mirip dengan query
+# Find articles similar to the query
 results = semantic_search("kebijakan ekonomi digital Indonesia", top_k=5)
 ```
 
 ---
 
-## ✈️ Orchestration dengan Airflow
+## ✈️ Orchestration with Airflow
 
-Pipeline ETL diorkestrasi menggunakan Apache Airflow melalui Docker.
+The ETL pipeline is orchestrated using Apache Airflow via Docker.
 
-### Menjalankan Airflow
+### Running Airflow
 
 ```bash
-# Build dan jalankan
+# Build and run
 docker-compose up -d
 
-# Akses Airflow UI
+# Access Airflow UI
 # http://localhost:8080
 # Username: airflow | Password: airflow
 ```
@@ -465,43 +465,43 @@ collect_urls → scrape_articles → clean_text → analyze_sentiment
     → generate_embeddings → extract_entities → detect_trending → load_to_db
 ```
 
-| Parameter | Nilai |
+| Parameter | Value |
 |-----------|-------|
 | Schedule | `@daily` |
 | Start Date | 2024-05-01 |
 | Catchup | Enabled |
-| Retries | 2 (delay 5 menit) |
+| Retries | 2 (5 minutes delay) |
 
 ---
 
 ## 📜 Materialized Views
 
-Pipeline secara otomatis me-refresh 3 materialized views setelah setiap batch:
+The pipeline automatically refreshes 3 materialized views after each batch:
 
-| View | Deskripsi | Penggunaan |
+| View | Description | Usage |
 |------|-----------|------------|
-| `mv_artikel_per_kategori_bulan` | Agregasi jumlah artikel & sentimen per kategori per bulan | Dashboard tren bulanan |
-| `mv_sentimen_harian` | Distribusi sentimen harian (positif/netral/negatif) | Time-series sentimen |
-| `mv_top_entitas` | Ranking entitas berdasarkan frekuensi kemunculan | Analisis tokoh/organisasi |
+| `mv_artikel_per_kategori_bulan` | Aggregation of article count & sentiment per category per month | Monthly trend dashboard |
+| `mv_sentimen_harian` | Daily sentiment distribution (positive/neutral/negative) | Sentiment time-series |
+| `mv_top_entitas` | Entity ranking based on appearance frequency | Person/organization analysis |
 
 ---
 
-## 👥 Kontributor
+## 👥 Contributors
 
-| Nama | NIM | Peran |
+| Name | Student ID | Role |
 |------|-----|-------|
-| *(Isi nama Anda)* | *(NIM)* | Pengembang Pipeline & Data Warehouse |
+| *(Your Name)* | *(Your ID)* | Pipeline & Data Warehouse Developer |
 
 ---
 
-## 📄 Lisensi
+## 📄 License
 
-Proyek ini dibuat untuk keperluan **Ujian Akhir Semester (UAS)** mata kuliah Data Warehouse, Semester 4.
+This project was created for the **Final Semester Exam (UAS)** of the Data Warehouse course, 4th Semester.
 
-Data yang di-scraping dari Kompas.com digunakan **hanya untuk keperluan akademis** dan bukan untuk tujuan komersial.
+Data scraped from Kompas.com is used **strictly for academic purposes** and not for commercial goals.
 
 ---
 
 <p align="center">
-  <sub>Built with ❤️ menggunakan Python, PostgreSQL, IndoBERT, dan Atoti</sub>
+  <sub>Built with ❤️ using Python, PostgreSQL, IndoBERT, and Atoti</sub>
 </p>
