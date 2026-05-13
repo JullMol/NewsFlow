@@ -173,7 +173,6 @@ Kompas.com produces **hundreds of news articles per day** across various categor
 ├── 📄 setup_database.py            # Database schema initialization script
 │
 ├── 📄 run_pipeline.py              # ⚡ Main pipeline (scrape → transform → load)
-├── 📄 run_csv_pipeline.py          # ⚡ Pipeline from historical CSV files
 │
 ├── 🐳 docker-compose.yml           # Docker Compose for Airflow
 ├── 🐳 Dockerfile.airflow           # Custom Airflow Dockerfile + dependencies
@@ -326,20 +325,13 @@ python run_pipeline.py --collect-urls-only
 python run_pipeline.py --process-only
 ```
 
-### Option B: Load from Historical CSV File
-
-```bash
-# Make sure the CSV file is at data/raw/kompas_news_2yr.csv
-python run_csv_pipeline.py
-```
-
-### Option C: Historical Data Scraper (Sitemap-based)
+### Option B: Historical Data Scraper (Sitemap-based)
 
 ```bash
 python scraper/historical_scraper.py
 ```
 
-### Option D: Run OLAP Cube
+### Option C: Run OLAP Cube
 
 ```bash
 python atoti_analysis/olap_cube.py
@@ -486,12 +478,13 @@ The pipeline automatically refreshes 3 materialized views after each batch:
 
 ---
 
-## 👥 Contributors
+## 👥 Contributors Pipeline & Data Warehouse Developer
 
 | Name | Student ID | Role |
 |------|-----|-------|
-| *(Your Name)* | *(Your ID)* | Pipeline & Data Warehouse Developer |
-
+| *Dimas Rafi Izzulhaq* | *24031554084* | Leader |
+| *Rizqi Aqilah Cahyani Yuniarto* | *24031554087* | Member 1 |
+| *Elvira Tiara Suci Tambunan* | *24031554213* | Member 2 |
 ---
 
 ## 📄 License
