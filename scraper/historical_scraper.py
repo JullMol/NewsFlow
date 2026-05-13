@@ -1,6 +1,8 @@
 import sys
 import os
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import time
 import random
 import re
@@ -21,6 +23,8 @@ from feeder.loader import load_batch
 SAMPLES_PER_MONTH = 5
 PAGES_PER_DATE    = 5
 DELAY_BETWEEN_REQUESTS = 1.5
+MAX_RETRIES = 3
+RETRY_BACKOFF = 2  # seconds, doubles each retry
 DELAY_BETWEEN_ARTICLES = 0.8
 
 START_DATE = date.today() - timedelta(days=730)
@@ -35,32 +39,46 @@ CSV_FIELDNAMES = [
     "scraped_at", "is_valid",
 ]
 
-def load_already_scraped_dates() -> set[str]:
-    scraped = set()
+def load_already_scraped_months() -> set[tuple[int, int]]:
+    from collections import defaultdict
+    completed_months = set()
+    dates_per_month = defaultdict(set)
+    
     if not CSV_OUTPUT.exists():
-        return scraped
+        return completed_months
+        
     try:
         with open(CSV_OUTPUT, "r", encoding="utf-8", newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 pub = row.get("published_at", "")
                 if pub and len(pub) >= 10:
-                    scraped.add(pub[:10])
+                    try:
+                        dt = datetime.strptime(pub[:10], "%Y-%m-%d")
+                        dates_per_month[(dt.year, dt.month)].add(pub[:10])
+                    except:
+                        pass
+                        
+        for month_tuple, dates in dates_per_month.items():
+            if len(dates) >= SAMPLES_PER_MONTH:
+                completed_months.add(month_tuple)
     except Exception as e:
         pass
-    return scraped
+    return completed_months
 
 def generate_sample_dates(
-    start: date, end: date, samples_per_month: int
+    start: date, end: date, samples_per_month: int, completed_months: set[tuple[int, int]]
 ) -> list[date]:
     dates_by_month: dict[tuple, list[date]] = {}
     current = start
     while current <= end:
         key = (current.year, current.month)
-        dates_by_month.setdefault(key, []).append(current)
+        if key not in completed_months:
+            dates_by_month.setdefault(key, []).append(current)
         current += timedelta(days=1)
 
     sampled: list[date] = []
+    random.seed(42) # Biar hasil kocokan selalu sama walau di-restart
     for (year, month), days in sorted(dates_by_month.items()):
         n = min(samples_per_month, len(days))
         sampled.extend(sorted(random.sample(days, n)))
@@ -147,9 +165,26 @@ def get_article_urls_from_indeks(
 
     return all_articles
 
+def _create_session() -> requests.Session:
+    """Create a requests session with automatic retry/backoff."""
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=MAX_RETRIES,
+        backoff_factor=RETRY_BACKOFF,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"],
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+# Reusable session with retry
+_http_session = _create_session()
+
 def scrape_article_content(url: str) -> dict | None:
     try:
-        resp = requests.get(url, headers=REQUEST_HEADERS, timeout=15)
+        resp = _http_session.get(url, headers=REQUEST_HEADERS, timeout=20)
         if resp.status_code != 200:
             return None
 
@@ -233,6 +268,12 @@ def scrape_article_content(url: str) -> dict | None:
             "word_count": len(content.split()),
         }
 
+    except requests.exceptions.ConnectionError as e:
+        print(f"\n[WARN] Connection error for {url}: {e}")
+        return None
+    except requests.exceptions.Timeout:
+        print(f"\n[WARN] Timeout for {url}")
+        return None
     except Exception:
         return None
 
@@ -241,13 +282,10 @@ def run_historical_extraction():
     print(f"Period: {START_DATE} to {END_DATE}")
     print(f"Sampling: {SAMPLES_PER_MONTH} dates/month | {PAGES_PER_DATE} pages/date\n")
 
-    all_sample_dates = generate_sample_dates(START_DATE, END_DATE, SAMPLES_PER_MONTH)
+    completed_months = load_already_scraped_months()
+    all_sample_dates = generate_sample_dates(START_DATE, END_DATE, SAMPLES_PER_MONTH, set())
+    sample_dates = generate_sample_dates(START_DATE, END_DATE, SAMPLES_PER_MONTH, completed_months)
 
-    already_done = load_already_scraped_dates()
-    sample_dates = [
-        d for d in all_sample_dates
-        if d.strftime("%Y-%m-%d") not in already_done
-    ]
     skipped = len(all_sample_dates) - len(sample_dates)
     print(f"[1/4] Sample dates : {len(all_sample_dates)} total")
     print(f"      Already scraped: {skipped} dates (skipped)")
@@ -256,6 +294,20 @@ def run_historical_extraction():
     print("\n[2/4] Loading NLP models...")
     analyzer = SentimentAnalyzer()
     embedder = EmbeddingGenerator()
+
+    # ── Quick DB connectivity check ──
+    db_available = False
+    print("\n[2.5/4] Testing DB connection...")
+    try:
+        from feeder.loader import get_connection
+        test_conn = get_connection()
+        test_conn.close()
+        print("  [OK] Database connected!")
+        db_available = True
+    except Exception as e:
+        print(f"  [WARN] Database unreachable: {e}")
+        print(f"  [WARN] Scraping will continue — data saved to CSV only.")
+        print(f"  [TIP]  Jika Supabase free-tier, buka dashboard dan klik 'Restore project'.")
 
     print("\n[3/4] Starting data extraction...\n")
 
@@ -356,14 +408,27 @@ def run_historical_extraction():
 
         csv_file.flush()
 
-        if batch_articles:
-            try:
-                loaded = load_batch(batch_articles)
-                total_loaded += loaded
-                print(f"[OK] {len(batch_articles)} articles scraped, {loaded} loaded to DB")
-            except Exception as e:
-                print(f"[ERR] Error loading to DB: {e}")
-                print(f"Data saved to CSV: {CSV_OUTPUT}")
+        if batch_articles and db_available:
+            db_ok = False
+            for attempt in range(1, MAX_RETRIES + 1):
+                try:
+                    loaded = load_batch(batch_articles)
+                    total_loaded += loaded
+                    print(f"[OK] {len(batch_articles)} articles scraped, {loaded} loaded to DB")
+                    db_ok = True
+                    break
+                except Exception as e:
+                    print(f"[ERR] DB attempt {attempt}/{MAX_RETRIES}: {e}")
+                    if attempt < MAX_RETRIES:
+                        wait = RETRY_BACKOFF * attempt
+                        print(f"       Retrying in {wait}s...")
+                        time.sleep(wait)
+            if not db_ok:
+                db_available = False  # Stop trying for remaining batches
+                print(f"[WARN] DB load failed — disabling DB for remaining batches.")
+                print(f"       Data safe in CSV: {CSV_OUTPUT}")
+        elif batch_articles:
+            print(f"[OK] {len(batch_articles)} articles scraped (CSV only, DB skipped)")
 
     csv_file.close()
 

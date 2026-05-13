@@ -25,7 +25,10 @@ DIM_CACHE = {
 }
 
 def get_connection():
-    return psycopg2.connect(**DB_CONFIG)
+    config = DB_CONFIG.copy()
+    config["connect_timeout"] = 15  # 15 seconds to connect
+    config["options"] = "-c statement_timeout=30000"  # 30 seconds query timeout
+    return psycopg2.connect(**config)
 
 def upsert_dim_waktu(conn, tanggal: date) -> int:
     if tanggal in DIM_CACHE["waktu"]:
