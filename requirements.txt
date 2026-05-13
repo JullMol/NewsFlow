@@ -1,32 +1,16 @@
-# ============================================================
-# Kompas.com Data Warehouse - Dependencies
-# ============================================================
-
-# --- Core ---
 requests>=2.31.0
 beautifulsoup4>=4.12.0
 lxml>=5.1.0
 pandas>=2.1.0
 python-dotenv>=1.0.0
 tqdm>=4.66.0
-
-# --- NLP / Machine Learning ---
 transformers>=4.40.0
 torch>=2.1.0
 sentence-transformers>=3.0.0
 Sastrawi>=1.0.1
-
-# --- Database ---
 psycopg2-binary>=2.9.9
 pgvector>=0.3.0
 supabase>=2.0.0
-
-# --- Orchestration (for Airflow Docker) ---
-# apache-airflow>=2.10.0  # Install inside Docker only
-
-# --- OLAP Visualization ---
 atoti[jupyterlab]>=0.9.0
 jupyterlab>=4.0.0
-
-# --- Utilities ---
 numpy>=1.24.0
