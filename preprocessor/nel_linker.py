@@ -216,7 +216,7 @@ def link_entity(name: str, entity_type: str) -> Optional[dict]:
     if cache_key in _nel_cache:
         return _nel_cache[cache_key]
 
-    if len(name) < 3: 
+    if len(name) < 3 and name not in ["AS", "MA", "MK", "PBB", "UI", "ITB", "UGM", "DPR", "MPR", "BI", "KPK"]: 
         return None
 
     cleaned_name = _clean_query(name)
@@ -320,8 +320,18 @@ def link_entity(name: str, entity_type: str) -> Optional[dict]:
             })
 
     if not candidates:
-        _nel_cache[cache_key] = None
-        return None
+        tag_slug = re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+        tag_url = f"https://www.kompas.com/tag/{tag_slug}"
+        candidates.append({
+            "wikipedia_url": tag_url,
+            "official_url":  None,
+            "wikidata_id":   None,
+            "deskripsi":     f"Berita dan informasi terbaru mengenai {name} di Kompas.com.",
+            "matched_title": name,
+            "score":         0.3,
+            "similarity":    1.0,
+            "language":      "kompas"
+        })
 
     candidates.sort(key=lambda x: (-x["score"], -x["similarity"]))
     best = candidates[0]

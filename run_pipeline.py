@@ -79,7 +79,6 @@ def run_full_pipeline(start_date: date, end_date: date, skip_scraping: bool = Fa
 
     start_time = time.time()
 
-    # Phase 1: Collect URLs (if not already done)
     if not skip_scraping:
         url_index = run_collect_urls(start_date, end_date)
     else:
@@ -90,7 +89,6 @@ def run_full_pipeline(start_date: date, end_date: date, skip_scraping: bool = Fa
         print("[ERROR] No URLs collected. Exiting.")
         return
 
-    # Sort dates
     sorted_dates = sorted(url_index.keys())
     total_dates = len(sorted_dates)
     total_articles = sum(len(v) for v in url_index.values())
@@ -98,13 +96,10 @@ def run_full_pipeline(start_date: date, end_date: date, skip_scraping: bool = Fa
     print(f"\n  Processing {total_dates} dates, ~{total_articles} articles total")
     print(f"  This will simulate {total_dates} daily batch runs\n")
 
-    # Process each date as a "daily batch"
     for idx, batch_date in enumerate(sorted_dates, 1):
         print(f"\nBATCH {idx}/{total_dates}: {batch_date}")
 
         articles_info = url_index[batch_date]
-
-        # Phase 2: Scrape
         if not skip_scraping:
             articles = run_scrape_batch(articles_info, batch_date)
         else:
@@ -117,21 +112,26 @@ def run_full_pipeline(start_date: date, end_date: date, skip_scraping: bool = Fa
             print(f"  [SKIP] No articles for {batch_date}")
             continue
 
-        # Phase 3: Transform
         articles, trending = run_transform_batch(articles, batch_date)
 
         if not articles:
             continue
+        MAX_RETRIES = 3
+        RETRY_BACKOFF = 2
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                loaded = run_load_batch(articles, trending)
+                print(f"  [BATCH COMPLETE] {batch_date}: loaded {loaded} articles")
+                break
+            except Exception as e:
+                print(f"  [ERROR] DB attempt {attempt}/{MAX_RETRIES} failed for {batch_date}: {e}")
+                if attempt < MAX_RETRIES:
+                    wait_time = RETRY_BACKOFF * attempt
+                    print(f"          Retrying in {wait_time}s...")
+                    time.sleep(wait_time)
+                else:
+                    print(f"  [ERROR] All DB retries failed for {batch_date}. Continuing to next batch.")
 
-        # Phase 4: Load to database
-        try:
-            loaded = run_load_batch(articles, trending)
-            print(f"  [BATCH COMPLETE] {batch_date}: loaded {loaded} articles")
-        except Exception as e:
-            print(f"  [ERROR] Load failed for {batch_date}: {e}")
-            print(f"  Continuing to next batch")
-
-    # Final: Refresh materialized views
     try:
         from feeder.loader import refresh_materialized_views, get_db_stats
         refresh_materialized_views()

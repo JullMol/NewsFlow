@@ -26,7 +26,6 @@ def run_explain_analyze(conn, query: str, params=None) -> dict:
 def benchmark_materialized_view(conn) -> dict:
     print("BENCHMARK 1: Materialized View")
 
-    # Query WITHOUT materialized view (direct aggregation)
     query_without = """
         SELECT dk.nama_kategori, dw.tahun, dw.bulan,
                COUNT(*) as jumlah,
@@ -38,7 +37,6 @@ def benchmark_materialized_view(conn) -> dict:
         ORDER BY dw.tahun, dw.bulan, dk.nama_kategori
     """
 
-    # Query WITH materialized view
     query_with = """
         SELECT nama_kategori, tahun, bulan,
                jumlah_artikel, avg_sentimen_score
@@ -67,7 +65,6 @@ def benchmark_materialized_view(conn) -> dict:
 def benchmark_partition(conn) -> dict:
     print("BENCHMARK 2: Partition (Range by Date)")
 
-    # Query that benefits from partitioning (specific date range)
     query = """
         SELECT COUNT(*), AVG(sentimen_score)
         FROM fact_artikel
@@ -77,19 +74,16 @@ def benchmark_partition(conn) -> dict:
     result = run_explain_analyze(conn, query)
     print(f"\n  With Partition Pruning: {result['execution_time_ms']:.3f} ms")
 
-    # Check if partition pruning was used
     plan_str = json.dumps(result['plan'])
     pruning_used = "Append" in plan_str or "Partition" in plan_str
 
     print(f"  Partition Pruning Used: {pruning_used}")
-    print(f"  (Partitioned table only scans relevant monthly partitions)")
 
     return {
         "benchmark": "Partition (Range by Date)",
         "query": "Filter articles by date range (Q1 2025)",
         "execution_time_ms": result['execution_time_ms'],
         "partition_pruning": pruning_used,
-        "note": "Only scans 3 monthly partitions instead of full table",
     }
 
 
@@ -107,10 +101,8 @@ def benchmark_index(conn) -> dict:
         LIMIT 10
     """
 
-    # Run with indexes (current state)
     result_with = run_explain_analyze(conn, query)
 
-    # Temporarily drop indexes, run without, then recreate
     cur = conn.cursor()
     try:
         cur.execute("DROP INDEX IF EXISTS idx_fact_artikel_kategori;")
@@ -119,14 +111,13 @@ def benchmark_index(conn) -> dict:
 
         result_without = run_explain_analyze(conn, query)
 
-        # Recreate indexes
         cur.execute("CREATE INDEX idx_fact_artikel_kategori ON fact_artikel(kategori_id);")
         cur.execute("CREATE INDEX idx_fact_artikel_sentimen ON fact_artikel(sentimen_id);")
         conn.commit()
     except Exception as e:
         print(f"  [WARN] Index benchmark error: {e}")
         conn.rollback()
-        result_without = result_with  # Fallback
+        result_without = result_with
 
     print(f"\n  WITHOUT Index: {result_without['execution_time_ms']:.3f} ms")
     print(f"  WITH Index:    {result_with['execution_time_ms']:.3f} ms")
@@ -148,7 +139,6 @@ def benchmark_pgvector(conn) -> dict:
 
     cur = conn.cursor()
 
-    # Get a sample embedding for query
     cur.execute("SELECT embedding FROM fact_artikel WHERE embedding IS NOT NULL LIMIT 1")
     row = cur.fetchone()
     if not row:
@@ -157,7 +147,6 @@ def benchmark_pgvector(conn) -> dict:
 
     sample_embedding = row[0]
 
-    # Similarity search query
     query = """
         SELECT judul, embedding <=> %s::vector AS distance
         FROM fact_artikel
@@ -170,7 +159,6 @@ def benchmark_pgvector(conn) -> dict:
 
     print(f"\n  Similarity Search (cosine): {result['execution_time_ms']:.3f} ms")
 
-    # Try creating IVFFlat index if enough data
     try:
         cur.execute("SELECT COUNT(*) FROM fact_artikel WHERE embedding IS NOT NULL")
         count = cur.fetchone()[0]
@@ -216,14 +204,12 @@ def run_all_benchmarks():
     finally:
         conn.close()
 
-    # Save results
     output_path = PROCESSED_DIR / "benchmark_results.json"
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
 
-    print(f"  BENCHMARK RESULTS SAVED: {output_path}")
+    print(f"BENCHMARK RESULTS SAVED: {output_path}")
 
-    # Print summary table
     print(f"\n{'Benchmark':<35} {'Without':<15} {'With':<15} {'Speedup':<10}")
     for r in results:
         name = r.get("benchmark", "N/A")[:34]

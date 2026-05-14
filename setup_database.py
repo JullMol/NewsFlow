@@ -17,7 +17,6 @@ def setup_database(use_partition: bool = True):
     conn = psycopg2.connect(**DB_CONFIG)
     cur = conn.cursor()
 
-    # Execute DDL statements one by one
     statements = [s.strip() for s in ddl.split(";") if s.strip()]
     success = 0
     errors = 0
@@ -30,7 +29,7 @@ def setup_database(use_partition: bool = True):
         except Exception as e:
             error_msg = str(e).strip()
             if "already exists" in error_msg:
-                success += 1  # Not really an error
+                success += 1
             else:
                 print(f"  [WARN] {error_msg[:100]}")
                 errors += 1
@@ -40,7 +39,6 @@ def setup_database(use_partition: bool = True):
     if errors:
         print(f"  {errors} warnings/errors (non-critical)")
 
-    # Verify tables exist
     cur = conn.cursor()
     cur.execute("""
         SELECT table_name FROM information_schema.tables
@@ -52,7 +50,6 @@ def setup_database(use_partition: bool = True):
     for t in tables:
         print(f"    - {t}")
 
-    # Check extensions
     cur.execute("SELECT extname FROM pg_extension")
     extensions = [row[0] for row in cur.fetchall()]
     print(f"\n  Extensions enabled: {', '.join(extensions)}")

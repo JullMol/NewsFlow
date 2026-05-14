@@ -55,16 +55,19 @@ CREATE TABLE IF NOT EXISTS dim_entitas (
     wikipedia_url   TEXT,
     deskripsi       TEXT,
     nel_matched     BOOLEAN DEFAULT FALSE,
+    nel_score       FLOAT DEFAULT 0.0,
+    nel_similarity  FLOAT DEFAULT 0.0,
     UNIQUE (nama_entitas, tipe_entitas)
 );
 """
 
-# Migration: add NEL columns to existing dim_entitas table
 ALTER_DIM_ENTITAS_NEL = """
 ALTER TABLE dim_entitas ADD COLUMN IF NOT EXISTS wikidata_id   VARCHAR(20);
 ALTER TABLE dim_entitas ADD COLUMN IF NOT EXISTS wikipedia_url TEXT;
 ALTER TABLE dim_entitas ADD COLUMN IF NOT EXISTS deskripsi     TEXT;
 ALTER TABLE dim_entitas ADD COLUMN IF NOT EXISTS nel_matched   BOOLEAN DEFAULT FALSE;
+ALTER TABLE dim_entitas ADD COLUMN IF NOT EXISTS nel_score     FLOAT DEFAULT 0.0;
+ALTER TABLE dim_entitas ADD COLUMN IF NOT EXISTS nel_similarity FLOAT DEFAULT 0.0;
 """
 
 CREATE_FACT_ARTIKEL = """
@@ -106,7 +109,6 @@ CREATE TABLE IF NOT EXISTS fact_artikel (
 );
 """
 
-# Bridge table for many-to-many article-entity relationship
 CREATE_BRIDGE_ARTIKEL_ENTITAS = """
 CREATE TABLE IF NOT EXISTS bridge_artikel_entitas (
     id              SERIAL PRIMARY KEY,
@@ -241,7 +243,7 @@ def get_full_schema_ddl(use_partition: bool = True) -> str:
         CREATE_DIM_PENULIS,
         CREATE_DIM_SENTIMEN,
         CREATE_DIM_ENTITAS,
-        ALTER_DIM_ENTITAS_NEL,  # Migration: add NEL columns to existing table
+        ALTER_DIM_ENTITAS_NEL,
         CREATE_FACT_ARTIKEL if use_partition else CREATE_FACT_ARTIKEL_NO_PARTITION,
     ]
     if use_partition:

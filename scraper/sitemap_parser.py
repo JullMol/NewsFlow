@@ -37,7 +37,6 @@ def parse_sitemap_index(sitemap_url: str = SITEMAP_INDEX_URL) -> list[str]:
         loc = sitemap.find("loc")
         if loc:
             url = loc.get_text(strip=True)
-            # Prefer archive sitemaps for historical data
             if "archive" in url or "news" in url:
                 sitemap_urls.append(url)
 
@@ -58,29 +57,22 @@ def parse_sub_sitemap(sitemap_url: str) -> list[dict]:
 
         article_url = loc.get_text(strip=True)
 
-        # Skip non-article URLs
         if "/read/" not in article_url and "/tren/read/" not in article_url:
             continue
 
-        # Extract publication date from news:publication_date or URL
         pub_date_str = None
         news_date = url_tag.find("news:publication_date")
         if news_date:
-            pub_date_str = news_date.get_text(strip=True)[:10]  # YYYY-MM-DD
+            pub_date_str = news_date.get_text(strip=True)[:10]
         else:
-            # Try to extract date from URL pattern:
-            # https://xxx.kompas.com/read/YYYY/MM/DD/...
             match = re.search(r"/read/(\d{4})/(\d{2})/(\d{2})/", article_url)
             if match:
                 pub_date_str = f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
 
-        # Extract title from news:title if available
         title = None
         news_title = url_tag.find("news:title")
         if news_title:
             title = news_title.get_text(strip=True)
-
-        # Extract keywords from news:keywords if available
         keywords = []
         news_kw = url_tag.find("news:keywords")
         if news_kw:
@@ -103,17 +95,13 @@ def collect_urls_from_sitemaps(
     print(f"\nSITEMAP URL COLLECTION")
     print(f"Range: {start_date} to {end_date}\n")
 
-    # Step 1: Get all sub-sitemap URLs
     sitemap_urls = parse_sitemap_index()
 
-    # Step 2: Parse each sub-sitemap
     all_articles = []
     for url in tqdm(sitemap_urls, desc="Parsing sitemaps"):
         articles = parse_sub_sitemap(url)
         all_articles.extend(articles)
-        time.sleep(0.5)  # Be polite
-
-    # Step 3: Filter by date range and group by date
+        time.sleep(0.5)
     grouped = defaultdict(list)
     for article in all_articles:
         if not article["pub_date"]:
@@ -146,14 +134,12 @@ def collect_urls_from_indeks(
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, "html.parser")
 
-            # Find article links on the index page
             article_links = soup.select("a.article__link")
             if not article_links:
-                # Also try alternative selectors
                 article_links = soup.select(".articleList a[href*='/read/']")
 
             if not article_links:
-                break  # No more articles on this page
+                break
 
             for link in article_links:
                 href = link.get("href", "")
@@ -182,10 +168,8 @@ def collect_all_urls(
     end_date: date = SCRAPE_END_DATE,
     use_indeks_fallback: bool = True,
 ) -> dict[str, list[dict]]:
-    # Try sitemaps first
     grouped = collect_urls_from_sitemaps(start_date, end_date)
 
-    # Fill gaps using indeks.kompas.com
     if use_indeks_fallback:
         total_days = (end_date - start_date).days + 1
         all_dates = [start_date + timedelta(days=i) for i in range(total_days)]
@@ -199,7 +183,8 @@ def collect_all_urls(
                     grouped[d.strftime("%Y-%m-%d")] = articles
                 time.sleep(0.5)
 
-    # Deduplicate URLs across dates
+    import random
+    
     seen_urls = set()
     for date_str in grouped:
         unique = []
@@ -207,6 +192,11 @@ def collect_all_urls(
             if article["url"] not in seen_urls:
                 seen_urls.add(article["url"])
                 unique.append(article)
+                
+        MAX_PER_DAY = 50
+        if len(unique) > MAX_PER_DAY:
+            unique = random.sample(unique, MAX_PER_DAY)
+            
         grouped[date_str] = unique
 
     # Save to file

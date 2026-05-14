@@ -19,18 +19,18 @@ def fetch_data_from_db() -> dict[str, pd.DataFrame]:
         FROM fact_artikel fa
     """, conn)
 
-    # Dimension tables
+    if "tags" in df_artikel.columns:
+        df_artikel["tags"] = df_artikel["tags"].apply(lambda x: ", ".join(x) if isinstance(x, list) else str(x))
+
     df_waktu = pd.read_sql("SELECT * FROM dim_waktu", conn)
     df_kategori = pd.read_sql("SELECT * FROM dim_kategori", conn)
     df_penulis = pd.read_sql("SELECT * FROM dim_penulis", conn)
     df_sentimen = pd.read_sql("SELECT * FROM dim_sentimen", conn)
     df_entitas = pd.read_sql("SELECT * FROM dim_entitas", conn)
 
-    # Bridge & Trending
     df_bridge = pd.read_sql("SELECT * FROM bridge_artikel_entitas", conn)
     df_trending = pd.read_sql("SELECT * FROM fact_trending", conn)
 
-    # Materialized views
     df_mv_kategori = pd.read_sql("SELECT * FROM mv_artikel_per_kategori_bulan", conn)
     df_mv_sentimen = pd.read_sql("SELECT * FROM mv_sentimen_harian", conn)
     df_mv_entitas = pd.read_sql("SELECT * FROM mv_top_entitas", conn)
@@ -66,39 +66,55 @@ def create_cube(data: dict = None):
     print("\n[ATOTI] Creating OLAP session")
     session = tt.Session.start()
 
-    # Denormalize fact table with dimensions
     df_fact = data["fact_artikel"]
     df_waktu = data["dim_waktu"]
     df_kategori = data["dim_kategori"]
     df_penulis = data["dim_penulis"]
     df_sentimen = data["dim_sentimen"]
 
-    # Merge dimensions into fact
     df_merged = df_fact.merge(df_waktu, on="waktu_id", how="left")
     df_merged = df_merged.merge(df_kategori, on="kategori_id", how="left")
     df_merged = df_merged.merge(df_penulis, on="penulis_id", how="left")
     df_merged = df_merged.merge(df_sentimen, on="sentimen_id", how="left")
 
-    # Create main table
+    import datetime
+    fill_values = {
+        "tahun": 0,
+        "kuartal": 0,
+        "nama_bulan": "Unknown",
+        "tanggal": datetime.date(1970, 1, 1),
+        "nama_kategori": "Unknown",
+        "label": "Unknown",
+        "nama_penulis": "Unknown"
+    }
+    for col, val in fill_values.items():
+        if col in df_merged.columns:
+            df_merged[col] = df_merged[col].fillna(val)
+
     print("[ATOTI] Loading artikel table")
     artikel_table = session.read_pandas(
         df_merged,
         keys={"artikel_id"},
         table_name="Artikel",
+        default_values=fill_values
     )
 
-    # Create trending table
     print("[ATOTI] Loading trending table")
     df_trending = data["fact_trending"]
     if not df_trending.empty:
         df_trending_merged = df_trending.merge(df_waktu, on="waktu_id", how="left")
+        
+        for col, val in fill_values.items():
+            if col in df_trending_merged.columns:
+                df_trending_merged[col] = df_trending_merged[col].fillna(val)
+                
         trending_table = session.read_pandas(
             df_trending_merged,
             keys={"trending_id"},
             table_name="Trending",
+            default_values=fill_values
         )
 
-    # Create entity table
     df_bridge = data["bridge_artikel_entitas"]
     df_entitas = data["dim_entitas"]
     if not df_bridge.empty and not df_entitas.empty:
@@ -109,14 +125,11 @@ def create_cube(data: dict = None):
             table_name="ArtikelEntitas",
         )
 
-    # Create cube
     print("[ATOTI] Creating OLAP cube")
     cube = session.create_cube(artikel_table, name="KompasNewsCube")
 
-    # Define Hierarchies
     h = cube.hierarchies
 
-    # Time hierarchy: Tahun > Kuartal > Bulan > Hari
     h["Waktu"] = {
         "Tahun": artikel_table["tahun"],
         "Kuartal": artikel_table["kuartal"],
@@ -124,34 +137,25 @@ def create_cube(data: dict = None):
         "Tanggal": artikel_table["tanggal"],
     }
 
-    # Category hierarchy
     h["Kategori"] = {
         "Nama Kategori": artikel_table["nama_kategori"],
     }
-
-    # Sentiment hierarchy
     h["Sentimen"] = {
         "Label": artikel_table["label"],
     }
 
-    # Author hierarchy
     h["Penulis"] = {
         "Nama Penulis": artikel_table["nama_penulis"],
     }
 
-    # Define Measures
     m = cube.measures
 
-    # Count articles
-    m["Jumlah Artikel"] = tt.agg.count(artikel_table["artikel_id"])
+    m["Jumlah Artikel"] = tt.agg.count_distinct(artikel_table["artikel_id"])
 
-    # Average sentiment score
     m["Rata-rata Sentimen"] = tt.agg.mean(artikel_table["sentimen_score"])
 
-    # Average word count
     m["Rata-rata Kata"] = tt.agg.mean(artikel_table["jumlah_kata"])
 
-    # Sentiment ratios
     m["Persen Positif"] = tt.where(
         artikel_table["label"] == "positive",
         m["Jumlah Artikel"],
@@ -176,13 +180,11 @@ def run_sample_queries(cube):
 
     print("\nSAMPLE OLAP QUERIES")
 
-    # Query 1: Articles per category
-    print("\ Articles per Category")
+    print("\n[QUERY] Articles per Category")
     result = cube.query(m["Jumlah Artikel"], levels=[h["Kategori"]["Nama Kategori"]])
     print(result.head(10))
 
-    # Query 2: Sentiment by month
-    print("\ Sentiment by Month")
+    print("\n[QUERY] Sentiment by Month")
     result = cube.query(
         m["Rata-rata Sentimen"],
         m["Jumlah Artikel"],
@@ -190,8 +192,7 @@ def run_sample_queries(cube):
     )
     print(result.head(12))
 
-    # Query 3: CUBE query (multidimensional)
-    print("\ Multidimensional: Category x Sentiment")
+    print("\n[QUERY] Multidimensional: Category x Sentiment")
     result = cube.query(
         m["Jumlah Artikel"],
         levels=[h["Kategori"]["Nama Kategori"], h["Sentimen"]["Label"]],
@@ -232,11 +233,10 @@ if __name__ == "__main__":
     session, cube = create_cube()
     run_sample_queries(cube)
 
-    # Keep session alive for interactive use
-    print("\n[ATOTI] Session running. Press Ctrl+C to stop.")
+    print("Session running. Press Ctrl+C to stop.")
     try:
         import time
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\nSession closed.")
+        print("Session closed.")

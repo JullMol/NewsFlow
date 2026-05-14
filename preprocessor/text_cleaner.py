@@ -20,20 +20,19 @@ BOILERPLATE_PATTERNS = [
     r"Ikuti berita terkini.*?(?=\.|$)",
 ]
 
-# Common encoding artifacts to fix
 ENCODING_FIXES = {
-    "\u00a0": " ",      # Non-breaking space
-    "\u200b": "",        # Zero-width space
-    "\u200c": "",        # Zero-width non-joiner
-    "\u200d": "",        # Zero-width joiner
-    "\ufeff": "",        # BOM
-    "\u2018": "'",       # Left single quote
-    "\u2019": "'",       # Right single quote
-    "\u201c": '"',       # Left double quote
-    "\u201d": '"',       # Right double quote
-    "\u2013": "-",       # En dash
-    "\u2014": "-",       # Em dash
-    "\u2026": "...",     # Ellipsis
+    "\u00a0": " ",      
+    "\u200b": "",        
+    "\u200c": "",        
+    "\u200d": "",        
+    "\ufeff": "",        
+    "\u2018": "'",       
+    "\u2019": "'",       
+    "\u201c": '"',       
+    "\u201d": '"',       
+    "\u2013": "-",       
+    "\u2014": "-",       
+    "\u2026": "...",     
 }
 
 
@@ -65,13 +64,10 @@ def normalize_whitespace(text: str) -> str:
 
 
 def clean_article(article: dict) -> dict:
-    # Clean title
     if article.get("title"):
         article["title"] = normalize_whitespace(
             fix_encoding(clean_html(article["title"]))
         )
-
-    # Clean content
     if article.get("content"):
         content = article["content"]
         content = clean_html(content)
@@ -80,39 +76,30 @@ def clean_article(article: dict) -> dict:
         content = normalize_whitespace(content)
         article["content"] = content
         article["word_count"] = len(content.split())
-
-    # Clean author
     if article.get("author"):
         article["author"] = normalize_whitespace(
             fix_encoding(clean_html(article["author"]))
         )
-
-    # Clean tags
     if article.get("tags"):
         article["tags"] = [
             normalize_whitespace(fix_encoding(tag))
             for tag in article["tags"]
             if tag.strip()
         ]
-
     return article
-
 
 def clean_batch(articles: list[dict]) -> list[dict]:
     seen_urls = set()
     cleaned = []
 
     for article in articles:
-        # Skip duplicates
         url = article.get("url", "")
         if url in seen_urls:
             continue
         seen_urls.add(url)
 
-        # Clean
         article = clean_article(article)
 
-        # Skip articles with no meaningful content
         if not article.get("content") or article.get("word_count", 0) < 20:
             continue
 

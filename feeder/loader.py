@@ -8,26 +8,23 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import DB_CONFIG
 
-# English day/month names
 HARI_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 BULAN_NAMES = [
     "", "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ]
 
-# Simple in-memory cache to avoid redundant DB lookups
 DIM_CACHE = {
-    "waktu": {},     # date -> id
-    "kategori": {},  # name -> id
-    "penulis": {},   # name -> id
-    "entitas": {},   # (name, type) -> id
-    "sentimen": {},  # label -> id
+    "waktu": {},     
+    "kategori": {},  
+    "penulis": {},   
+    "entitas": {},   
+    "sentimen": {},  
 }
 
 def get_connection():
     config = DB_CONFIG.copy()
-    # Additional timeout for query execution
-    config["options"] = "-c statement_timeout=30000"  # 30 seconds query timeout
+    config["options"] = "-c statement_timeout=30000"
     return psycopg2.connect(**config)
 
 def upsert_dim_waktu(conn, tanggal: date) -> int:
@@ -57,7 +54,6 @@ def upsert_dim_waktu(conn, tanggal: date) -> int:
     if result:
         w_id = result[0]
     else:
-        # If conflict, fetch again
         cur.execute("SELECT waktu_id FROM dim_waktu WHERE tanggal = %s", (tanggal,))
         w_id = cur.fetchone()[0]
     
@@ -120,11 +116,11 @@ def get_sentimen_id(conn, label: str) -> int:
 
 def upsert_dim_entitas(conn, nama: str, tipe: str,
                        wikidata_id: str = None, wikipedia_url: str = None,
-                       deskripsi: str = None, nel_matched: bool = False) -> int:
+                       deskripsi: str = None, nel_matched: bool = False,
+                       nel_score: float = 0.0, nel_similarity: float = 0.0) -> int:
     cache_key = (nama, tipe)
     if cache_key in DIM_CACHE["entitas"]:
         e_id = DIM_CACHE["entitas"][cache_key]
-        # If we now have NEL data, enrich the existing row
         if nel_matched and e_id:
             try:
                 cur = conn.cursor()
@@ -133,10 +129,12 @@ def upsert_dim_entitas(conn, nama: str, tipe: str,
                     SET wikidata_id   = COALESCE(wikidata_id, %s),
                         wikipedia_url = COALESCE(wikipedia_url, %s),
                         deskripsi     = COALESCE(deskripsi, %s),
+                        nel_score     = GREATEST(nel_score, %s),
+                        nel_similarity = GREATEST(nel_similarity, %s),
                         nel_matched   = TRUE
                     WHERE entitas_id = %s
-                      AND (nel_matched = FALSE OR nel_matched IS NULL)
-                """, (wikidata_id, wikipedia_url, deskripsi, e_id))
+                      AND (nel_matched = FALSE OR nel_matched IS NULL OR nel_score = 0.0)
+                """, (wikidata_id, wikipedia_url, deskripsi, nel_score, nel_similarity, e_id))
             except Exception:
                 pass
         return e_id
@@ -145,15 +143,17 @@ def upsert_dim_entitas(conn, nama: str, tipe: str,
     cur.execute("""
         INSERT INTO dim_entitas (nama_entitas, tipe_entitas,
                                  wikidata_id, wikipedia_url,
-                                 deskripsi, nel_matched)
-        VALUES (%s, %s, %s, %s, %s, %s)
+                                 deskripsi, nel_matched, nel_score, nel_similarity)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (nama_entitas, tipe_entitas) DO UPDATE SET
             wikidata_id   = COALESCE(dim_entitas.wikidata_id, EXCLUDED.wikidata_id),
             wikipedia_url = COALESCE(dim_entitas.wikipedia_url, EXCLUDED.wikipedia_url),
             deskripsi     = COALESCE(dim_entitas.deskripsi, EXCLUDED.deskripsi),
+            nel_score     = GREATEST(dim_entitas.nel_score, EXCLUDED.nel_score),
+            nel_similarity = GREATEST(dim_entitas.nel_similarity, EXCLUDED.nel_similarity),
             nel_matched   = dim_entitas.nel_matched OR EXCLUDED.nel_matched
         RETURNING entitas_id
-    """, (nama, tipe, wikidata_id, wikipedia_url, deskripsi, nel_matched))
+    """, (nama, tipe, wikidata_id, wikipedia_url, deskripsi, nel_matched, nel_score, nel_similarity))
     result = cur.fetchone()
     if result:
         e_id = result[0]
@@ -168,10 +168,6 @@ def upsert_dim_entitas(conn, nama: str, tipe: str,
     return e_id
 
 def _invalidate_dim_cache(pub_date, category, author):
-    """
-    Buang entri DIM_CACHE yang mungkin sudah stale akibat rollback.
-    Dipanggil setiap kali ada error agar ghost-ID tidak dipakai ulang.
-    """
     DIM_CACHE["waktu"].pop(pub_date, None)
     DIM_CACHE["kategori"].pop(category, None)
     DIM_CACHE["penulis"].pop(author, None)
@@ -180,7 +176,6 @@ def _invalidate_dim_cache(pub_date, category, author):
 def load_article(conn, article: dict) -> int | None:
     cur = conn.cursor()
 
-    # Parse date
     pub_date_str = article.get("pub_date")
     if not pub_date_str:
         return None
@@ -192,10 +187,6 @@ def load_article(conn, article: dict) -> int | None:
     category = article.get("category", "Lainnya")
     author   = article.get("author", "Kompas.com")
 
-    # ── Upsert dimensions ──
-    # Dimensi di-upsert dulu. Jika berhasil, mereka visible dalam
-    # transaksi yang sama. Kita pakai SAVEPOINT agar jika fact insert
-    # gagal, hanya fact yang di-rollback — bukan dimension-nya.
     try:
         waktu_id    = upsert_dim_waktu(conn, pub_date)
         kategori_id = upsert_dim_kategori(conn, category)
@@ -207,7 +198,6 @@ def load_article(conn, article: dict) -> int | None:
         _invalidate_dim_cache(pub_date, category, author)
         return None
 
-    # Prepare embedding
     embedding = article.get("embedding")
     embedding_str = None
     if embedding:
@@ -215,9 +205,6 @@ def load_article(conn, article: dict) -> int | None:
 
     tags = article.get("tags", [])
 
-    # ── Fact insert — protected by SAVEPOINT ──
-    # Rollback ke savepoint hanya membatalkan fact insert,
-    # dimension upserts di atas tetap ada dalam transaksi.
     artikel_id = None
     try:
         cur.execute("SAVEPOINT sp_fact")
@@ -252,11 +239,9 @@ def load_article(conn, article: dict) -> int | None:
         cur.execute("ROLLBACK TO SAVEPOINT sp_fact")
         cur.execute("RELEASE SAVEPOINT sp_fact")
         print(f"  [ERROR] Fact insert failed for {article['url']}: {e}")
-        # Invalidate cache agar ID tidak dipakai ulang di artikel berikutnya
         _invalidate_dim_cache(pub_date, category, author)
         return None
 
-    # ── Load entities ke bridge table (with NEL data) ──
     if artikel_id and article.get("entities"):
         for entity in article["entities"]:
             try:
@@ -267,6 +252,8 @@ def load_article(conn, article: dict) -> int | None:
                     wikipedia_url=entity.get("wikipedia_url"),
                     deskripsi=entity.get("deskripsi"),
                     nel_matched=entity.get("nel_matched", False),
+                    nel_score=entity.get("nel_score", 0.0),
+                    nel_similarity=entity.get("nel_similarity", 0.0),
                 )
                 cur.execute("""
                     INSERT INTO bridge_artikel_entitas (artikel_id, entitas_id, frekuensi)
@@ -312,7 +299,6 @@ def load_batch(articles: list[dict], trending: list[dict] = None):
             else:
                 errors += 1
         
-        # Commit once per batch instead of per article
         conn.commit()
 
         if trending:

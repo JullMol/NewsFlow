@@ -2,6 +2,8 @@ import re
 import json
 import time
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from datetime import datetime, timezone, date
 from urllib.parse import urlparse
 from pathlib import Path
@@ -17,6 +19,21 @@ from config import (
 
 MAX_RETRIES = 3
 RETRY_DELAY = 3
+
+def _create_session() -> requests.Session:
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=MAX_RETRIES,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"],
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+_http_session = _create_session()
 
 def clean_text(text: str) -> str:
     if not text:
@@ -65,7 +82,7 @@ def extract_author(soup: BeautifulSoup) -> str:
 def scrape_article(url: str, pub_date_hint: date = None) -> dict | None:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            resp = requests.get(url, headers=REQUEST_HEADERS, timeout=REQUEST_TIMEOUT)
+            resp = _http_session.get(url, headers=REQUEST_HEADERS, timeout=REQUEST_TIMEOUT)
             if resp.status_code == 404:
                 return None
             resp.raise_for_status()
@@ -115,7 +132,6 @@ def scrape_article(url: str, pub_date_hint: date = None) -> dict | None:
                     if p.get_text(strip=True)
                 )
 
-            # Fallback if content is too short
             if len(content) < 50:
                 og_desc = soup.find("meta", property="og:description")
                 if og_desc:

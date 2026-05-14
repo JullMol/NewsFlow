@@ -20,13 +20,14 @@ from preprocessor.sentiment_analyzer import SentimentAnalyzer
 from preprocessor.embedding_generator import EmbeddingGenerator
 from preprocessor.ner_extractor import extract_article_entities
 from preprocessor.nel_linker import link_article_entities
+from preprocessor.trending_detector import process_trending
 from feeder.loader import load_batch
 
 SAMPLES_PER_MONTH = 5
 PAGES_PER_DATE    = 5
 DELAY_BETWEEN_REQUESTS = 1.5
 MAX_RETRIES = 3
-RETRY_BACKOFF = 2  # seconds, doubles each retry
+RETRY_BACKOFF = 2
 DELAY_BETWEEN_ARTICLES = 0.8
 
 START_DATE = date.today() - timedelta(days=730)
@@ -80,7 +81,7 @@ def generate_sample_dates(
         current += timedelta(days=1)
 
     sampled: list[date] = []
-    random.seed(42) # Biar hasil kocokan selalu sama walau di-restart
+    random.seed(42)
     for (year, month), days in sorted(dates_by_month.items()):
         n = min(samples_per_month, len(days))
         sampled.extend(sorted(random.sample(days, n)))
@@ -168,7 +169,6 @@ def get_article_urls_from_indeks(
     return all_articles
 
 def _create_session() -> requests.Session:
-    """Create a requests session with automatic retry/backoff."""
     session = requests.Session()
     retry_strategy = Retry(
         total=MAX_RETRIES,
@@ -181,7 +181,6 @@ def _create_session() -> requests.Session:
     session.mount("http://", adapter)
     return session
 
-# Reusable session with retry
 _http_session = _create_session()
 
 def scrape_article_content(url: str) -> dict | None:
@@ -293,13 +292,12 @@ def run_historical_extraction():
     print(f"      Already scraped: {skipped} dates (skipped)")
     print(f"      Remaining      : {len(sample_dates)} dates")
 
-    print("\n[2/4] Loading NLP models...")
+    print("\n[2/4] Loading NLP models")
     analyzer = SentimentAnalyzer()
     embedder = EmbeddingGenerator()
 
-    # ── Quick DB connectivity check ──
     db_available = False
-    print("\n[2.5/4] Testing DB connection...")
+    print("\n[2.5/4] Testing DB connection")
     try:
         from feeder.loader import get_connection
         test_conn = get_connection()
@@ -308,10 +306,10 @@ def run_historical_extraction():
         db_available = True
     except Exception as e:
         print(f"  [WARN] Database unreachable: {e}")
-        print(f"  [WARN] Scraping will continue — data saved to CSV only.")
+        print(f"  [WARN] Scraping will continue data saved to CSV only.")
         print(f"  [TIP]  Jika Supabase free-tier, buka dashboard dan klik 'Restore project'.")
 
-    print("\n[3/4] Starting data extraction...\n")
+    print("\n[3/4] Starting data extraction\n")
 
     total_scraped = 0
     total_loaded  = 0
@@ -410,18 +408,22 @@ def run_historical_extraction():
 
         csv_file.flush()
 
-        # NER + NEL — run on the full batch before loading to DB
+        trending_data = []
         if batch_articles:
-            print(f"  [NER] Extracting entities...")
+            print(f"  [NER] Extracting entities")
             batch_articles = extract_article_entities(batch_articles)
-            print(f"  [NEL] Linking entities to Wikipedia/Wikidata...")
+            print(f"  [NEL] Linking entities to Wikipedia/Wikidata")
             batch_articles = link_article_entities(batch_articles)
+
+            print(f"  [TRENDING] Detecting trending topics")
+            date_str = target_date.strftime("%Y-%m-%d")
+            trending_data = process_trending(batch_articles, date_str)
 
         if batch_articles and db_available:
             db_ok = False
             for attempt in range(1, MAX_RETRIES + 1):
                 try:
-                    loaded = load_batch(batch_articles)
+                    loaded = load_batch(batch_articles, trending=trending_data)
                     total_loaded += loaded
                     print(f"[OK] {len(batch_articles)} articles scraped, {loaded} loaded to DB")
                     db_ok = True
@@ -430,11 +432,11 @@ def run_historical_extraction():
                     print(f"[ERR] DB attempt {attempt}/{MAX_RETRIES}: {e}")
                     if attempt < MAX_RETRIES:
                         wait = RETRY_BACKOFF * attempt
-                        print(f"       Retrying in {wait}s...")
+                        print(f"       Retrying in {wait}s")
                         time.sleep(wait)
             if not db_ok:
-                db_available = False  # Stop trying for remaining batches
-                print(f"[WARN] DB load failed — disabling DB for remaining batches.")
+                db_available = False
+                print(f"[WARN] DB load failed disabling DB for remaining batches.")
                 print(f"       Data safe in CSV: {CSV_OUTPUT}")
         elif batch_articles:
             print(f"[OK] {len(batch_articles)} articles scraped (CSV only, DB skipped)")

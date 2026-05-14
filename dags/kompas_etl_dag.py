@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-# Default DAG arguments
 default_args = {
     "owner": "kompas-dw",
     "depends_on_past": True,
@@ -15,11 +14,10 @@ default_args = {
 
 def task_collect_urls(**context):
     from scraper.sitemap_parser import collect_urls_from_indeks
-    exec_date = context["ds"]  # YYYY-MM-DD string
+    exec_date = context["ds"]
     from datetime import date as d
     dt = d.fromisoformat(exec_date)
     articles = collect_urls_from_indeks(dt)
-    # Push to XCom for next task
     context["ti"].xcom_push(key="articles_info", value=articles)
     return len(articles)
 
@@ -45,7 +43,6 @@ def task_clean_text(**context):
     articles = load_batch(exec_date)
     articles = clean_batch(articles)
 
-    # Save cleaned articles
     out = PROCESSED_DIR / f"clean_{exec_date}.json"
     with open(out, "w", encoding="utf-8") as f:
         json.dump(articles, f, ensure_ascii=False)
@@ -83,7 +80,6 @@ def task_generate_embeddings(**context):
     generator = get_generator()
     articles = generate_article_embeddings(articles, generator)
 
-    # Save embeddings separately (large)
     embeddings = {a["url"]: a.get("embedding") for a in articles}
     emb_path = PROCESSED_DIR / f"emb_{exec_date}.json"
     with open(emb_path, "w") as f:
@@ -103,6 +99,23 @@ def task_extract_entities(**context):
         articles = json.load(f)
 
     articles = extract_article_entities(articles)
+
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(articles, f, ensure_ascii=False)
+    return len(articles)
+
+
+def task_link_entities(**context):
+    from preprocessor.nel_linker import link_article_entities
+    import json
+    from config import PROCESSED_DIR
+
+    exec_date = context["ds"]
+    path = PROCESSED_DIR / f"clean_{exec_date}.json"
+    with open(path, "r", encoding="utf-8") as f:
+        articles = json.load(f)
+
+    articles = link_article_entities(articles)
 
     with open(path, "w", encoding="utf-8") as f:
         json.dump(articles, f, ensure_ascii=False)
@@ -135,12 +148,10 @@ def task_load_to_db(**context):
 
     exec_date = context["ds"]
 
-    # Load processed articles
     path = PROCESSED_DIR / f"clean_{exec_date}.json"
     with open(path, "r", encoding="utf-8") as f:
         articles = json.load(f)
 
-    # Attach embeddings if available
     emb_path = PROCESSED_DIR / f"emb_{exec_date}.json"
     if emb_path.exists():
         with open(emb_path, "r") as f:
@@ -149,7 +160,6 @@ def task_load_to_db(**context):
             if a["url"] in embeddings:
                 a["embedding"] = embeddings[a["url"]]
 
-    # Load trending
     trending = []
     trend_path = PROCESSED_DIR / f"trending_{exec_date}.json"
     if trend_path.exists():
@@ -165,9 +175,8 @@ with DAG(
     default_args=default_args,
     description="Daily ETL pipeline for Kompas.com news articles",
     schedule_interval="@daily",
-    start_date=datetime(2024, 5, 1),
-    end_date=datetime(2026, 5, 12),
-    catchup=True,
+    start_date=datetime(2026, 5, 13),
+    catchup=False,
     tags=["kompas", "etl", "data-warehouse"],
 ) as dag:
 
@@ -177,8 +186,8 @@ with DAG(
     t4 = PythonOperator(task_id="analyze_sentiment", python_callable=task_analyze_sentiment)
     t5 = PythonOperator(task_id="generate_embeddings", python_callable=task_generate_embeddings)
     t6 = PythonOperator(task_id="extract_entities", python_callable=task_extract_entities)
+    t6_5 = PythonOperator(task_id="link_entities", python_callable=task_link_entities)
     t7 = PythonOperator(task_id="detect_trending", python_callable=task_detect_trending)
     t8 = PythonOperator(task_id="load_to_db", python_callable=task_load_to_db)
 
-    # Task dependencies (pipeline flow)
-    t1 >> t2 >> t3 >> t4 >> t5 >> t6 >> t7 >> t8
+    t1 >> t2 >> t3 >> t4 >> t5 >> t6 >> t6_5 >> t7 >> t8
