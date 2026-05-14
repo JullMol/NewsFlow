@@ -9,7 +9,12 @@ import re
 import csv
 from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ImportError:
+    def tqdm(iterable, *args, **kwargs):
+        return iterable
+
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -423,7 +428,13 @@ def run_historical_extraction():
             db_ok = False
             for attempt in range(1, MAX_RETRIES + 1):
                 try:
-                    loaded = load_batch(batch_articles, trending=trending_data)
+                    try:
+                        from feeder.loader import load_batch as load_batch_sql
+                        loaded = load_batch_sql(batch_articles, trending=trending_data)
+                    except (ImportError, Exception):
+                        from feeder.rest_loader import load_batch as load_batch_rest
+                        loaded = load_batch_rest(batch_articles, trending=trending_data)
+                        
                     total_loaded += loaded
                     print(f"[OK] {len(batch_articles)} articles scraped, {loaded} loaded to DB")
                     db_ok = True

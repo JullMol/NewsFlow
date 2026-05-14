@@ -5,7 +5,12 @@ import requests
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from bs4 import BeautifulSoup
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ImportError:
+    def tqdm(iterable, *args, **kwargs):
+        return iterable
+
 from collections import defaultdict
 
 import sys
@@ -199,7 +204,6 @@ def collect_all_urls(
             
         grouped[date_str] = unique
 
-    # Save to file
     output_path = RAW_DIR / "url_index.json"
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(grouped, f, ensure_ascii=False, indent=2)

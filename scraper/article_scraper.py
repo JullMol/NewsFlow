@@ -8,7 +8,11 @@ from datetime import datetime, timezone, date
 from urllib.parse import urlparse
 from pathlib import Path
 from bs4 import BeautifulSoup
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ImportError:
+    def tqdm(iterable, *args, **kwargs):
+        return iterable
 
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))

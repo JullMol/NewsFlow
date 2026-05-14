@@ -1,6 +1,14 @@
+import sys
+from pathlib import Path
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+
+current_path = Path(__file__).parent
+PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 default_args = {
     "owner": "kompas-dw",
@@ -142,7 +150,12 @@ def task_detect_trending(**context):
 
 
 def task_load_to_db(**context):
-    from feeder.loader import load_batch, refresh_materialized_views
+    try:
+        from feeder.loader import load_batch, refresh_materialized_views
+    except (ImportError, Exception):
+        # Fallback to REST loader for Airflow server environment
+        from feeder.rest_loader import load_batch, refresh_materialized_views
+
     import json
     from config import PROCESSED_DIR
 

@@ -70,8 +70,13 @@ def run_transform_batch(articles: list[dict], batch_date: str):
     return articles, trending
 
 def run_load_batch(articles: list[dict], trending: list[dict]):
-    from feeder.loader import load_batch
-    return load_batch(articles, trending)
+    try:
+        from feeder.loader import load_batch
+        return load_batch(articles, trending)
+    except (ImportError, Exception):
+        # Fallback to REST loader if psycopg2 is missing (e.g. on Airflow server)
+        from feeder.rest_loader import load_batch as load_batch_rest
+        return load_batch_rest(articles, trending)
 
 def run_full_pipeline(start_date: date, end_date: date, skip_scraping: bool = False):
     print("\nKOMPAS.COM DATA WAREHOUSE - FULL PIPELINE")
@@ -124,26 +129,27 @@ def run_full_pipeline(start_date: date, end_date: date, skip_scraping: bool = Fa
                 print(f"  [BATCH COMPLETE] {batch_date}: loaded {loaded} articles")
                 break
             except Exception as e:
-                print(f"  [ERROR] DB attempt {attempt}/{MAX_RETRIES} failed for {batch_date}: {e}")
+                print(f"  [ERROR] Load attempt {attempt}/{MAX_RETRIES} failed for {batch_date}: {e}")
                 if attempt < MAX_RETRIES:
                     wait_time = RETRY_BACKOFF * attempt
                     print(f"          Retrying in {wait_time}s...")
                     time.sleep(wait_time)
                 else:
-                    print(f"  [ERROR] All DB retries failed for {batch_date}. Continuing to next batch.")
+                    print(f"  [ERROR] All load retries failed for {batch_date}. Continuing to next batch.")
 
     try:
-        from feeder.loader import refresh_materialized_views, get_db_stats
+        try:
+            from feeder.loader import refresh_materialized_views, get_db_stats
+        except (ImportError, Exception):
+            from feeder.rest_loader import refresh_materialized_views, get_db_stats
+            
         refresh_materialized_views()
-
         stats = get_db_stats()
         print(f"\nPIPELINE COMPLETE")
         print(f"Total time: {time.time()-start_time:.1f} seconds")
-        print(f"Database stats:")
-        for table, count in stats.items():
-            print(f"  {table}: {count} rows")
+        print(f"Database stats: {stats}")
     except Exception as e:
-        print(f"\n  Pipeline finished. DB stats unavailable: {e}")
+        print(f"\n  Pipeline finished. DB stats/refresh failed: {e}")
 
 
 def main():

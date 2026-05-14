@@ -1,0 +1,119 @@
+[project]
+name = "ETL"
+version = "0.1.0"
+description = "ICAI-MA ETL Project"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "accelerate>=0.26.0",
+    "alive-progress>=3.3.0",
+    "beautifulsoup4==4.12.2",
+    "bitsandbytes>=0.49.2",
+    "chromadb>=1.5.5",
+    "dotenv>=0.9.9",
+    "fake-useragent>=2.2.0",
+    "fuzzywuzzy>=0.18.0",
+    "gensim>=4.4.0",
+    "gliner>=0.2.24",
+    "gliner-spacy>=0.0.11",
+    "glirel>=1.2.1",
+    "google-auth-oauthlib>=1.2.2",
+    "google-generativeai>=0.8.5",
+    "google-search-results>=2.4.2",
+    "graphdatascience>=1.16",
+    "groq>=1.1.2",
+    "huggingface-hub[hf-xet]>=0.35.1",
+    "icecream>=2.1.8",
+    "ipykernel>=6.30.1",
+    "ipywidgets>=8.1.8",
+    "keybert>=0.9.0",
+    "lancedb>=0.30.2",
+    "langchain>=0.3.27",
+    "langchain-openai>=0.3.33",
+    "logger>=1.4",
+    "loguru>=0.7.3",
+    "lxml>=6.0.2",
+    "matplotlib>=3.10.6",
+    "modal>=1.4.0",
+    "neo4j>=5.28.2",
+    "networkx>=3.5",
+    "nltk>=3.9.1",
+    "pandas>=2.3.2",
+    "pddiktipy>=2.0.6",
+    "peft>=0.18.1",
+    "pendulum>=3.2.0",
+    "plotly>=6.3.0",
+    "psutil>=7.1.0",
+    "pyinstrument>=5.1.1",
+    "pymupdf>=1.26.7",
+    "pyotp>=2.9.0",
+    "pytest-playwright>=0.7.1",
+    "python-dotenv>=1.1.1",
+    "pyvis>=0.3.2",
+    "qrcode[pil]>=8.2",
+    "requests==2.31.0",
+    "rich>=14.1.0",
+    "scholarly==1.7.11",
+    "scikit-learn>=1.7.2",
+    "scrapingbee>=2.0.2",
+    "seaborn>=0.13.2",
+    "selenium>=4.35.0",
+    "sentence-transformers>=5.1.1",
+    "seqeval>=0.0.10",
+    "sinta-scraper>=2.2.1",
+    "spacy>=3.8.8",
+    "streamlit>=1.51.0",
+    "torch>=2.3.0",
+    "torch-geometric>=2.7.0",
+    "transformers>=4.53.0",
+    "umap-learn>=0.5.9.post2",
+    "undetected-chromedriver>=3.5.5",
+    "watermark>=2.5.0",
+    "webdriver-manager>=4.0.2",
+]
+
+[project.optional-dependencies]
+cpu = ["torch>=2.6"]
+cuda = ["torch>=2.6"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "ipykernel>=7.2.0",
+    "ipywidgets>=8.1.8",
+]
+
+[tool.uv]
+no-build-package = ["llama-cpp-python"]
+override-dependencies = [
+    "seqeval>=0.0.10",
+]
+conflicts = [
+    [{ extra = "cpu" }, { extra = "cuda" }],
+]
+
+[tool.uv.sources]
+torch = [
+    # The deployment servers only use CPU
+    { index = "pytorch-cpu",  extra = "cpu", marker = "sys_platform == 'linux'" },
+    # Let devs install cuda-supported torch releases
+    { index = "pytorch-cuda", extra = "cuda", marker = "sys_platform != 'darwin'" },
+]
+
+transformers = { git = "https://github.com/huggingface/transformers.git" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url      = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name     = "pytorch-cuda"
+url      = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[tool.uv.extra-build-dependencies]
+flatdict = ["setuptools"]
