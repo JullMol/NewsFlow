@@ -6,7 +6,14 @@ from airflow.providers.standard.operators.python import ExternalPythonOperator
 
 # Dynamic search for project root containing 'scraper' in global scope
 PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
-for p_str in [str(Path(__file__).parent), str(Path(__file__).parent.parent), "/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+possible_global_paths = ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]
+try:
+    possible_global_paths.insert(0, str(Path(__file__).parent))
+    possible_global_paths.insert(1, str(Path(__file__).parent.parent))
+except Exception:
+    pass
+
+for p_str in possible_global_paths:
     if p_str and (Path(p_str) / "scraper").exists():
         PROJECT_ROOT = p_str
         break
