@@ -4,8 +4,12 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.python import ExternalPythonOperator
 
-current_path = Path(__file__).parent
-PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+# Dynamic search for project root containing 'scraper' in global scope
+PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
+for p_str in [str(Path(__file__).parent), str(Path(__file__).parent.parent), "/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+    if p_str and (Path(p_str) / "scraper").exists():
+        PROJECT_ROOT = p_str
+        break
 
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -23,9 +27,14 @@ default_args = {
 def task_collect_urls(exec_date):
     import sys
     from pathlib import Path
-    current_path = Path(__file__).parent
-    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
     
+    # Dynamic search for project root inside the venv subprocess
+    PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
+    for p_str in ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+        if (Path(p_str) / "scraper").exists():
+            PROJECT_ROOT = p_str
+            break
+            
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
 
@@ -49,9 +58,13 @@ def task_collect_urls(exec_date):
 def task_scrape_articles(exec_date):
     import sys
     from pathlib import Path
-    current_path = Path(__file__).parent
-    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
     
+    PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
+    for p_str in ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+        if (Path(p_str) / "scraper").exists():
+            PROJECT_ROOT = p_str
+            break
+            
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
 
@@ -78,9 +91,13 @@ def task_scrape_articles(exec_date):
 def task_clean_text(exec_date):
     import sys
     from pathlib import Path
-    current_path = Path(__file__).parent
-    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
     
+    PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
+    for p_str in ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+        if (Path(p_str) / "scraper").exists():
+            PROJECT_ROOT = p_str
+            break
+            
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
 
@@ -101,9 +118,13 @@ def task_clean_text(exec_date):
 def task_analyze_sentiment(exec_date):
     import sys
     from pathlib import Path
-    current_path = Path(__file__).parent
-    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
     
+    PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
+    for p_str in ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+        if (Path(p_str) / "scraper").exists():
+            PROJECT_ROOT = p_str
+            break
+            
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
 
@@ -126,9 +147,13 @@ def task_analyze_sentiment(exec_date):
 def task_generate_embeddings(exec_date):
     import sys
     from pathlib import Path
-    current_path = Path(__file__).parent
-    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
     
+    PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
+    for p_str in ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+        if (Path(p_str) / "scraper").exists():
+            PROJECT_ROOT = p_str
+            break
+            
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
 
@@ -154,9 +179,13 @@ def task_generate_embeddings(exec_date):
 def task_extract_entities(exec_date):
     import sys
     from pathlib import Path
-    current_path = Path(__file__).parent
-    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
     
+    PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
+    for p_str in ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+        if (Path(p_str) / "scraper").exists():
+            PROJECT_ROOT = p_str
+            break
+            
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
 
@@ -178,9 +207,13 @@ def task_extract_entities(exec_date):
 def task_link_entities(exec_date):
     import sys
     from pathlib import Path
-    current_path = Path(__file__).parent
-    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
     
+    PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
+    for p_str in ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+        if (Path(p_str) / "scraper").exists():
+            PROJECT_ROOT = p_str
+            break
+            
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
 
@@ -202,9 +235,13 @@ def task_link_entities(exec_date):
 def task_detect_trending(exec_date):
     import sys
     from pathlib import Path
-    current_path = Path(__file__).parent
-    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
     
+    PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
+    for p_str in ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+        if (Path(p_str) / "scraper").exists():
+            PROJECT_ROOT = p_str
+            break
+            
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
 
@@ -228,9 +265,13 @@ def task_detect_trending(exec_date):
 def task_load_to_db(exec_date):
     import sys
     from pathlib import Path
-    current_path = Path(__file__).parent
-    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
     
+    PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
+    for p_str in ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
+        if (Path(p_str) / "scraper").exists():
+            PROJECT_ROOT = p_str
+            break
+            
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
 
