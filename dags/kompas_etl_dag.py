@@ -268,7 +268,7 @@ with DAG(
     dag_id="kompas_etl_pipeline",
     default_args=default_args,
     description="Daily ETL pipeline for Kompas.com news articles",
-    schedule_interval="@daily",
+    schedule="@daily",
     start_date=datetime(2026, 5, 13),
     catchup=False,
     tags=["kompas", "etl", "data-warehouse"],
