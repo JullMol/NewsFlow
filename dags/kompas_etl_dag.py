@@ -313,7 +313,7 @@ def task_load_to_db(exec_date):
     return loaded
 
 with DAG(
-    dag_id="kompas_etl_pipeline",
+    dag_id="kompas_etl_pipeline_v3",
     default_args=default_args,
     description="Daily ETL pipeline for Kompas.com news articles",
     schedule="@daily",
