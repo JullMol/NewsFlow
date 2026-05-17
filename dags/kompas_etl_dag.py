@@ -315,8 +315,8 @@ def task_load_to_db(exec_date):
 with DAG(
     dag_id="kompas_etl_pipeline_v3",
     default_args=default_args,
-    description="Daily ETL pipeline for Kompas.com news articles",
-    schedule="@daily",
+    description="ETL pipeline for Kompas.com news articles (runs every 3 days)",
+    schedule="0 0 */3 * *",
     start_date=datetime(2026, 5, 13),
     catchup=False,
     tags=["kompas", "etl", "data-warehouse"],
