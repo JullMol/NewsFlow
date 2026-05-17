@@ -6,6 +6,16 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
+
+# Dynamic fallback to temp directory if running in a read-only environment
+try:
+    test_dir = BASE_DIR / "data_test"
+    test_dir.mkdir(parents=True, exist_ok=True)
+    test_dir.rmdir()
+except OSError:
+    import tempfile
+    DATA_DIR = Path(tempfile.gettempdir()) / "newsflow_data"
+
 RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 
