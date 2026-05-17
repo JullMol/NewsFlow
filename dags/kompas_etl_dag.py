@@ -12,7 +12,7 @@ if PROJECT_ROOT not in sys.path:
 
 default_args = {
     "owner": "kompas-dw",
-    "depends_on_past": True,
+    "depends_on_past": False,
     "email_on_failure": False,
     "email_on_retry": False,
     "retries": 2,
