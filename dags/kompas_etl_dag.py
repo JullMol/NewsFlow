@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import ExternalPythonOperator
 
 current_path = Path(__file__).parent
 PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
@@ -20,34 +20,75 @@ default_args = {
     "max_active_runs": 1,
 }
 
-def task_collect_urls(**context):
+def task_collect_urls(exec_date):
+    import sys
+    from pathlib import Path
+    current_path = Path(__file__).parent
+    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+    
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
     from scraper.sitemap_parser import collect_urls_from_indeks
-    exec_date = context["ds"]
+    import json
+    from config import RAW_DIR
     from datetime import date as d
+    
     dt = d.fromisoformat(exec_date)
     articles = collect_urls_from_indeks(dt)
-    context["ti"].xcom_push(key="articles_info", value=articles)
+    
+    articles = articles[:50]
+    
+    out_path = RAW_DIR / f"urls_{exec_date}.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(articles, f, ensure_ascii=False)
+        
     return len(articles)
 
 
-def task_scrape_articles(**context):
+def task_scrape_articles(exec_date):
+    import sys
+    from pathlib import Path
+    current_path = Path(__file__).parent
+    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+    
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
     from scraper.article_scraper import scrape_batch
-    exec_date = context["ds"]
-    articles_info = context["ti"].xcom_pull(key="articles_info", task_ids="collect_urls")
-    if not articles_info:
-        print(f"No URLs for {exec_date}")
+    import json
+    from config import RAW_DIR
+
+    path = RAW_DIR / f"urls_{exec_date}.json"
+    if not path.exists():
+        print(f"No URLs file found for {exec_date}")
         return 0
+        
+    with open(path, "r", encoding="utf-8") as f:
+        articles_info = json.load(f)
+
+    if not articles_info:
+        print(f"No URLs in sitemap for {exec_date}")
+        return 0
+
     articles = scrape_batch(articles_info, exec_date)
     return len(articles)
 
 
-def task_clean_text(**context):
+def task_clean_text(exec_date):
+    import sys
+    from pathlib import Path
+    current_path = Path(__file__).parent
+    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+    
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
     from scraper.article_scraper import load_batch
     from preprocessor.text_cleaner import clean_batch
     import json
     from config import RAW_DIR, PROCESSED_DIR
 
-    exec_date = context["ds"]
     articles = load_batch(exec_date)
     articles = clean_batch(articles)
 
@@ -57,12 +98,19 @@ def task_clean_text(**context):
     return len(articles)
 
 
-def task_analyze_sentiment(**context):
+def task_analyze_sentiment(exec_date):
+    import sys
+    from pathlib import Path
+    current_path = Path(__file__).parent
+    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+    
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
     from preprocessor.sentiment_analyzer import analyze_articles, get_analyzer
     import json
     from config import PROCESSED_DIR
 
-    exec_date = context["ds"]
     path = PROCESSED_DIR / f"clean_{exec_date}.json"
     with open(path, "r", encoding="utf-8") as f:
         articles = json.load(f)
@@ -75,12 +123,19 @@ def task_analyze_sentiment(**context):
     return len(articles)
 
 
-def task_generate_embeddings(**context):
+def task_generate_embeddings(exec_date):
+    import sys
+    from pathlib import Path
+    current_path = Path(__file__).parent
+    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+    
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
     from preprocessor.embedding_generator import generate_article_embeddings, get_generator
     import json
     from config import PROCESSED_DIR
 
-    exec_date = context["ds"]
     path = PROCESSED_DIR / f"clean_{exec_date}.json"
     with open(path, "r", encoding="utf-8") as f:
         articles = json.load(f)
@@ -96,12 +151,19 @@ def task_generate_embeddings(**context):
     return len(articles)
 
 
-def task_extract_entities(**context):
+def task_extract_entities(exec_date):
+    import sys
+    from pathlib import Path
+    current_path = Path(__file__).parent
+    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+    
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
     from preprocessor.ner_extractor import extract_article_entities
     import json
     from config import PROCESSED_DIR
 
-    exec_date = context["ds"]
     path = PROCESSED_DIR / f"clean_{exec_date}.json"
     with open(path, "r", encoding="utf-8") as f:
         articles = json.load(f)
@@ -113,12 +175,19 @@ def task_extract_entities(**context):
     return len(articles)
 
 
-def task_link_entities(**context):
+def task_link_entities(exec_date):
+    import sys
+    from pathlib import Path
+    current_path = Path(__file__).parent
+    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+    
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
     from preprocessor.nel_linker import link_article_entities
     import json
     from config import PROCESSED_DIR
 
-    exec_date = context["ds"]
     path = PROCESSED_DIR / f"clean_{exec_date}.json"
     with open(path, "r", encoding="utf-8") as f:
         articles = json.load(f)
@@ -130,12 +199,19 @@ def task_link_entities(**context):
     return len(articles)
 
 
-def task_detect_trending(**context):
+def task_detect_trending(exec_date):
+    import sys
+    from pathlib import Path
+    current_path = Path(__file__).parent
+    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+    
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
     from preprocessor.trending_detector import process_trending
     import json
     from config import PROCESSED_DIR
 
-    exec_date = context["ds"]
     path = PROCESSED_DIR / f"clean_{exec_date}.json"
     with open(path, "r", encoding="utf-8") as f:
         articles = json.load(f)
@@ -149,17 +225,22 @@ def task_detect_trending(**context):
     return len(trending)
 
 
-def task_load_to_db(**context):
+def task_load_to_db(exec_date):
+    import sys
+    from pathlib import Path
+    current_path = Path(__file__).parent
+    PROJECT_ROOT = str(current_path.parent / "NewsFlow") if (current_path.parent / "NewsFlow").exists() else str(current_path.parent)
+    
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+
     try:
         from feeder.loader import load_batch, refresh_materialized_views
     except (ImportError, Exception):
-        # Fallback to REST loader for Airflow server environment
         from feeder.rest_loader import load_batch, refresh_materialized_views
 
     import json
     from config import PROCESSED_DIR
-
-    exec_date = context["ds"]
 
     path = PROCESSED_DIR / f"clean_{exec_date}.json"
     with open(path, "r", encoding="utf-8") as f:
@@ -193,14 +274,68 @@ with DAG(
     tags=["kompas", "etl", "data-warehouse"],
 ) as dag:
 
-    t1 = PythonOperator(task_id="collect_urls", python_callable=task_collect_urls)
-    t2 = PythonOperator(task_id="scrape_articles", python_callable=task_scrape_articles)
-    t3 = PythonOperator(task_id="clean_text", python_callable=task_clean_text)
-    t4 = PythonOperator(task_id="analyze_sentiment", python_callable=task_analyze_sentiment)
-    t5 = PythonOperator(task_id="generate_embeddings", python_callable=task_generate_embeddings)
-    t6 = PythonOperator(task_id="extract_entities", python_callable=task_extract_entities)
-    t6_5 = PythonOperator(task_id="link_entities", python_callable=task_link_entities)
-    t7 = PythonOperator(task_id="detect_trending", python_callable=task_detect_trending)
-    t8 = PythonOperator(task_id="load_to_db", python_callable=task_load_to_db)
+    t1 = ExternalPythonOperator(
+        task_id="collect_urls",
+        python="/opt/airflow/.venv/bin/python",
+        python_callable=task_collect_urls,
+        op_kwargs={"exec_date": "{{ ds }}"},
+        expect_airflow=False
+    )
+    t2 = ExternalPythonOperator(
+        task_id="scrape_articles",
+        python="/opt/airflow/.venv/bin/python",
+        python_callable=task_scrape_articles,
+        op_kwargs={"exec_date": "{{ ds }}"},
+        expect_airflow=False
+    )
+    t3 = ExternalPythonOperator(
+        task_id="clean_text",
+        python="/opt/airflow/.venv/bin/python",
+        python_callable=task_clean_text,
+        op_kwargs={"exec_date": "{{ ds }}"},
+        expect_airflow=False
+    )
+    t4 = ExternalPythonOperator(
+        task_id="analyze_sentiment",
+        python="/opt/airflow/.venv/bin/python",
+        python_callable=task_analyze_sentiment,
+        op_kwargs={"exec_date": "{{ ds }}"},
+        expect_airflow=False
+    )
+    t5 = ExternalPythonOperator(
+        task_id="generate_embeddings",
+        python="/opt/airflow/.venv/bin/python",
+        python_callable=task_generate_embeddings,
+        op_kwargs={"exec_date": "{{ ds }}"},
+        expect_airflow=False
+    )
+    t6 = ExternalPythonOperator(
+        task_id="extract_entities",
+        python="/opt/airflow/.venv/bin/python",
+        python_callable=task_extract_entities,
+        op_kwargs={"exec_date": "{{ ds }}"},
+        expect_airflow=False
+    )
+    t6_5 = ExternalPythonOperator(
+        task_id="link_entities",
+        python="/opt/airflow/.venv/bin/python",
+        python_callable=task_link_entities,
+        op_kwargs={"exec_date": "{{ ds }}"},
+        expect_airflow=False
+    )
+    t7 = ExternalPythonOperator(
+        task_id="detect_trending",
+        python="/opt/airflow/.venv/bin/python",
+        python_callable=task_detect_trending,
+        op_kwargs={"exec_date": "{{ ds }}"},
+        expect_airflow=False
+    )
+    t8 = ExternalPythonOperator(
+        task_id="load_to_db",
+        python="/opt/airflow/.venv/bin/python",
+        python_callable=task_load_to_db,
+        op_kwargs={"exec_date": "{{ ds }}"},
+        expect_airflow=False
+    )
 
     t1 >> t2 >> t3 >> t4 >> t5 >> t6 >> t6_5 >> t7 >> t8
