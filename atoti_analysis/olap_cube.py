@@ -64,7 +64,16 @@ def create_cube(data: dict = None):
         data = fetch_data_from_db()
 
     print("\n[ATOTI] Creating OLAP session")
-    session = tt.Session.start()
+    content_dir = Path(__file__).parent / "content"
+    session = tt.Session.start(
+        tt.SessionConfig(
+            port=11875,
+            user_content_storage=content_dir
+        )
+    )
+    
+    trending_table = None
+    trending_cube = None
 
     df_fact = data["fact_artikel"]
     df_waktu = data["dim_waktu"]
@@ -96,7 +105,7 @@ def create_cube(data: dict = None):
         df_merged,
         keys={"artikel_id"},
         table_name="Artikel",
-        default_values=fill_values
+        default_values={k: v for k, v in fill_values.items() if k in df_merged.columns}
     )
 
     print("[ATOTI] Loading trending table")
@@ -112,7 +121,7 @@ def create_cube(data: dict = None):
             df_trending_merged,
             keys={"trending_id"},
             table_name="Trending",
-            default_values=fill_values
+            default_values={k: v for k, v in fill_values.items() if k in df_trending_merged.columns}
         )
 
     df_bridge = data["bridge_artikel_entitas"]
@@ -136,6 +145,11 @@ def create_cube(data: dict = None):
         "Bulan": artikel_table["nama_bulan"],
         "Tanggal": artikel_table["tanggal"],
     }
+    
+    # Independent hierarchies for easy UI dragging without drill-down constraints
+    h["Tahun"] = {"Tahun": artikel_table["tahun"]}
+    h["Bulan"] = {"Bulan": artikel_table["nama_bulan"]}
+    h["Tanggal"] = {"Tanggal": artikel_table["tanggal"]}
 
     h["Kategori"] = {
         "Nama Kategori": artikel_table["nama_kategori"],
@@ -156,15 +170,33 @@ def create_cube(data: dict = None):
 
     m["Rata-rata Kata"] = tt.agg.mean(artikel_table["jumlah_kata"])
 
-    m["Persen Positif"] = tt.where(
-        artikel_table["label"] == "positive",
+    m["Persen Positif"] = tt.filter(
         m["Jumlah Artikel"],
+        h["Sentimen"]["Label"] == "positive"
     ) / m["Jumlah Artikel"]
 
-    m["Persen Negatif"] = tt.where(
-        artikel_table["label"] == "negative",
+    m["Persen Negatif"] = tt.filter(
         m["Jumlah Artikel"],
+        h["Sentimen"]["Label"] == "negative"
     ) / m["Jumlah Artikel"]
+
+    if not df_trending.empty and trending_table is not None:
+        print("[ATOTI] Creating Trending OLAP cube")
+        trending_cube = session.create_cube(trending_table, name="TrendingCube")
+        
+        th = trending_cube.hierarchies
+        th["Waktu"] = {
+            "Tahun": trending_table["tahun"],
+            "Kuartal": trending_table["kuartal"],
+            "Bulan": trending_table["nama_bulan"],
+        }
+        th["Keyword"] = {
+            "Keyword": trending_table["keyword"],
+        }
+        
+        tm = trending_cube.measures
+        tm["Skor Trending"] = tt.agg.mean(trending_table["skor_trending"])
+        tm["Frekuensi"] = tt.agg.sum(trending_table["frekuensi"])
 
     print("\n[ATOTI] Cube created successfully!")
     print(f"  Hierarchies: {list(h.keys())}")
