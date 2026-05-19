@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> **STUDENT & EXAMINER NOTICE (IMPORTANT):**
+> 1. **Execution-Ready Branch:** All setup configurations, program code, and ETL pipeline execution + Atoti OLAP are complete and ready to run in the **[`airflow-ready`](https://github.com/JullMol/NewsFlow/tree/airflow-ready)** branch. Make sure you switch to the `airflow-ready` branch before executing the pipeline.
+> 2. **UAS Progress Report:** Our group's official progress report document for Examiners can be downloaded/accessed directly in this repository via the file: **[084_087_213_Progress Report Data Warehouse.pdf](docs/084_087_213_Progress Report Data Warehouse.pdf)**.
+
 <p align="center">
   <img src="docs/architecture.png" width="700" alt="Architecture Diagram"/>
 </p>
@@ -107,48 +112,9 @@ Kompas.com produces **hundreds of news articles per day** across various categor
 
 ## ⭐ Data Warehouse Schema (Star Schema)
 
-```
-                           ┌──────────────┐
-                           │  dim_waktu   │
-                           │──────────────│
-                           │ waktu_id (PK)│
-                           │ tanggal      │
-                           │ hari         │
-                           │ minggu       │
-                           │ bulan        │
-                           │ nama_bulan   │
-                           │ kuartal      │
-                           │ tahun        │
-                           └──────┬───────┘
-                                  │
-    ┌──────────────┐    ┌─────────▼──────────┐    ┌──────────────┐
-    │ dim_kategori │    │   fact_artikel      │    │ dim_penulis  │
-    │──────────────│    │────────────────────│    │──────────────│
-    │ kategori_id  │◄───│ artikel_id (PK)    │───►│ penulis_id   │
-    │ nama_kategori│    │ url                │    │ nama_penulis │
-    └──────────────┘    │ judul              │    └──────────────┘
-                        │ konten             │
-    ┌──────────────┐    │ waktu_id (FK)      │    ┌──────────────┐
-    │ dim_sentimen │    │ kategori_id (FK)   │    │ dim_entitas  │
-    │──────────────│    │ penulis_id (FK)    │    │──────────────│
-    │ sentimen_id  │◄───│ sentimen_id (FK)   │    │ entitas_id   │
-    │ label        │    │ sentimen_score     │    │ nama_entitas │
-    │ deskripsi    │    │ embedding (vec384) │    │ tipe_entitas │
-    └──────────────┘    │ jumlah_kata        │    └──────┬───────┘
-                        │ tags[]             │           │
-                        │ tanggal_publikasi  │    ┌──────▼───────┐
-                        └────────────────────┘    │   bridge_    │
-                                                  │artikel_entitas│
-                        ┌────────────────────┐    │──────────────│
-                        │  fact_trending     │    │ artikel_id   │
-                        │────────────────────│    │ entitas_id   │
-                        │ trending_id (PK)   │    │ frekuensi    │
-                        │ waktu_id (FK)      │    └──────────────┘
-                        │ keyword            │
-                        │ frekuensi          │
-                        │ skor_trending      │
-                        └────────────────────┘
-```
+<p align="center">
+  <img src="docs/Star Schema.png" width="800" alt="Star Schema Diagram"/>
+</p>
 
 ### Main Database Features
 
