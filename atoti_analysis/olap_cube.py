@@ -206,30 +206,81 @@ def create_cube(data: dict = None):
     return session, cube
 
 
-def run_sample_queries(cube):
+def olap_rollup(cube):
+    print("OLAP OPERATION 1: ROLL-UP (Tanggal -> Bulan -> Tahun per Kategori)")
     m = cube.measures
     h = cube.hierarchies
 
-    print("\nSAMPLE OLAP QUERIES")
+    # Roll-up: Tanggal -> Bulan -> Tahun per Kategori
+    print("\n [Granular] Volume Artikel per Tanggal & Kategori (10 Baris Pertama):")
+    df_tanggal = cube.query(m["Jumlah Artikel"], levels=[h["Kategori"]["Nama Kategori"], h["Waktu"]["Tanggal"]])
+    print(df_tanggal.head(10))
 
-    print("\n[QUERY] Articles per Category")
-    result = cube.query(m["Jumlah Artikel"], levels=[h["Kategori"]["Nama Kategori"]])
-    print(result.head(10))
+    print("\n [Roll-up to Bulan] Volume Artikel per Bulan & Kategori (10 Baris Pertama):")
+    df_bulan = cube.query(m["Jumlah Artikel"], levels=[h["Kategori"]["Nama Kategori"], h["Waktu"]["Bulan"]])
+    print(df_bulan.head(10))
 
-    print("\n[QUERY] Sentiment by Month")
-    result = cube.query(
+    print("\n [Roll-up to Tahun] Volume Artikel per Tahun & Kategori:")
+    df_tahun = cube.query(m["Jumlah Artikel"], levels=[h["Kategori"]["Nama Kategori"], h["Waktu"]["Tahun"]])
+    print(df_tahun.head(10))
+
+
+def olap_drilldown(cube, tahun=2026, bulan="Mei"):
+    print(f"  OLAP OPERATION 2: DRILL-DOWN (Tahun {tahun} -> Bulan {bulan})")
+    m = cube.measures
+    h = cube.hierarchies
+
+    # Drill-down: Filter Tahun, rincian ke Bulan, lalu ke Tanggal
+    print(f"\n [Drill-Down to Bulan] Distribusi Artikel per Kategori di Tahun {tahun}:")
+    df_bulan = cube.query(
+        m["Jumlah Artikel"],
+        levels=[h["Kategori"]["Nama Kategori"], h["Waktu"]["Bulan"]],
+        filter=(h["Waktu"]["Tahun"] == tahun)
+    )
+    print(df_bulan.head(10))
+
+    print(f"\n [Drill-Down to Tanggal] Rincian Artikel per Hari pada Bulan {bulan} {tahun}:")
+    df_hari = cube.query(
+        m["Jumlah Artikel"],
         m["Rata-rata Sentimen"],
-        m["Jumlah Artikel"],
-        levels=[h["Waktu"]["Bulan"]],
+        levels=[h["Waktu"]["Tanggal"]],
+        filter=((h["Waktu"]["Tahun"] == tahun) & (h["Waktu"]["Bulan"] == bulan))
     )
-    print(result.head(12))
+    print(df_hari.head(15))
 
-    print("\n[QUERY] Multidimensional: Category x Sentiment")
-    result = cube.query(
+
+def olap_slice(cube, kategori="Finansial"):
+    print(f"  OLAP OPERATION 3: SLICE (Kategori = '{kategori}')")
+    m = cube.measures
+    h = cube.hierarchies
+
+    # Slice: Mengiris data berdasarkan satu dimensi (Kategori = 'Finansial')
+    df_slice = cube.query(
         m["Jumlah Artikel"],
-        levels=[h["Kategori"]["Nama Kategori"], h["Sentimen"]["Label"]],
+        m["Rata-rata Sentimen"],
+        levels=[h["Waktu"]["Tahun"], h["Waktu"]["Bulan"]],
+        filter=(h["Kategori"]["Nama Kategori"] == kategori)
     )
-    print(result.head(20))
+    print(df_slice.head(12))
+
+
+def olap_dice(cube, kategori="Bandung", tahun=2026, sentimen="neutral"):
+    print(f"  OLAP OPERATION 4: DICE (Kategori = '{kategori}' AND Tahun = {tahun} AND Sentimen = '{sentimen}')")
+    m = cube.measures
+    h = cube.hierarchies
+
+    # Dice: Mengiris data berdasarkan multi-dimensi sekaligus (Kategori, Tahun, Sentimen)
+    df_dice = cube.query(
+        m["Jumlah Artikel"],
+        m["Rata-rata Sentimen"],
+        levels=[h["Waktu"]["Tanggal"]],
+        filter=(
+            (h["Kategori"]["Nama Kategori"] == kategori) &
+            (h["Waktu"]["Tahun"] == tahun) &
+            (h["Sentimen"]["Label"] == sentimen)
+        )
+    )
+    print(df_dice.head(15))
 
 
 def semantic_search(query_text: str, top_k: int = 5):
@@ -263,9 +314,15 @@ def semantic_search(query_text: str, top_k: int = 5):
 
 if __name__ == "__main__":
     session, cube = create_cube()
-    run_sample_queries(cube)
+    
+    # Jalankan seluruh 4 operasi OLAP interaktif
+    olap_rollup(cube)
+    olap_drilldown(cube, tahun=2026, bulan="Mei")
+    olap_slice(cube, kategori="Finansial")
+    olap_dice(cube, kategori="Bandung", tahun=2026, sentimen="neutral")
 
-    print("Session running. Press Ctrl+C to stop.")
+    print(f"  Atoti UI tersedia secara persisten di: {session.link}")
+    print("  Jaringan OLAP aktif. Tekan Ctrl+C untuk menghentikan.")
     try:
         import time
         while True:
