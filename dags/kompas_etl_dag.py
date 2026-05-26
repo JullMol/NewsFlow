@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.standard.operators.python import ExternalPythonOperator
 
-# Dynamic search for project root containing 'scraper' in global scope
 PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
 possible_global_paths = ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]
 try:
@@ -34,8 +33,7 @@ default_args = {
 def task_collect_urls(exec_date):
     import sys
     from pathlib import Path
-    
-    # Dynamic search for project root inside the venv subprocess
+
     PROJECT_ROOT = "/opt/airflow/dags/inter24-dag"
     for p_str in ["/opt/airflow/dags/inter24-dag", "/opt/airflow/dags/inter24-dag/NewsFlow", "/home/inter24/NewsFlow", "/opt/airflow/NewsFlow"]:
         if (Path(p_str) / "scraper").exists():

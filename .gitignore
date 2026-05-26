@@ -39,3 +39,4 @@ desktop.ini
 *.log
 logs/
 atoti_analysis/content/
+atoti_analysis/content_backup/
