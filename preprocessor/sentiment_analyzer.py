@@ -71,7 +71,6 @@ class SentimentAnalyzer:
 
         return results
 
-
 def analyze_articles(articles: list[dict], analyzer: SentimentAnalyzer = None) -> list[dict]:
     if analyzer is None:
         analyzer = SentimentAnalyzer()
@@ -87,8 +86,15 @@ def analyze_articles(articles: list[dict], analyzer: SentimentAnalyzer = None) -
     sentiments = analyzer.predict_batch(texts)
 
     for article, sentiment in zip(articles, sentiments):
-        article["sentiment_label"] = sentiment["label"]
-        article["sentiment_score"] = sentiment["score"]
+        lbl = sentiment["label"]
+        conf = sentiment["score"]
+        article["sentiment_label"] = lbl
+        if lbl == "positive":
+            article["sentiment_score"] = conf
+        elif lbl == "negative":
+            article["sentiment_score"] = -conf
+        else:
+            article["sentiment_score"] = 0.0
 
     return articles
 

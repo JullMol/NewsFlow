@@ -81,7 +81,10 @@ def upsert_dim_kategori(conn, nama: str) -> int:
     DIM_CACHE["kategori"][nama] = k_id
     return k_id
 
+from preprocessor.text_cleaner import clean_author_name
+
 def upsert_dim_penulis(conn, nama: str) -> int:
+    nama = clean_author_name(nama)
     if nama in DIM_CACHE["penulis"]:
         return DIM_CACHE["penulis"][nama]
 

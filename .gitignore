@@ -40,3 +40,9 @@ desktop.ini
 logs/
 atoti_analysis/content/
 atoti_analysis/content_backup/
+
+# Allow sample data files to be pushed to GitHub
+!data/raw/raw_sample.csv
+!data/raw/raw_sample.json
+!data/processed/processed_sample.csv
+!data/processed/processed_sample.json

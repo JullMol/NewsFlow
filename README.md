@@ -170,9 +170,11 @@ Kompas.com produces **hundreds of news articles per day** across various categor
 │   ├── __init__.py
 │   └── olap_cube.py                # Atoti OLAP cube + semantic search
 │
-├── 📂 data/                        # 📁 Data directory (Git-ignored)
+├── 📂 data/                        # 📁 Data directory (Full directories are Git-ignored)
 │   ├── raw/                        # Raw scraped data
-│   └── processed/                  # Transformed NLP data
+│   ├── processed/                  # Transformed NLP data
+│   ├── raw_sample.csv / .json      # Representative sample of raw scraped data (GitHub & Report ready)
+│   └── processed_sample.csv / .json# Representative sample of processed NLP data (GitHub & Report ready)
 │
 └── 📂 docs/                        # 📚 Additional documentation
     └── architecture.png            # Architecture diagram
@@ -320,19 +322,19 @@ Raw Article
 │    • Remove HTML tags                  │
 │    • Remove Indonesian stopwords       │
 │    • Stemming via Sastrawi             │
-│    • Whitespace normalization          │
+│    • Clean & deduplicate author names  │
 └────────────────┬───────────────────────┘
                  ▼
 ┌────────────────────────────────────────┐
 │ 2. SENTIMENT ANALYSIS (IndoBERT)       │
 │    • Model: indonesia-bert-sentiment   │
 │    • Output: label (pos/neu/neg)       │
-│    • Output: confidence score (0–1)    │
+│    • Converted to Polarity Score (-1/1)│
 └────────────────┬───────────────────────┘
                  ▼
 ┌────────────────────────────────────────┐
 │ 3. VECTOR EMBEDDING (MiniLM)           │
-│    • Model: paraphrase-multilingual    │
+│    • Model: paraphrase-multilingual-l12│
 │    • Output: 384-dim float vector      │
 │    • Stored in pgvector (cosine sim)   │
 └────────────────┬───────────────────────┘

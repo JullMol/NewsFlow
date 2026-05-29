@@ -62,6 +62,45 @@ def normalize_whitespace(text: str) -> str:
     text = text.strip()
     return text
 
+def clean_author_name(author: str) -> str:
+    if not author:
+        return "Kompas.com"
+    
+    author = author.strip("()[]{} :,-.|/\\")
+    
+    author = re.sub(r'^(penulis|editor|reporter|kontributor|oleh|author|reporter/editor)\s*[:/,-]\s*', '', author, flags=re.I)
+    
+    author = re.sub(r'\s+[:/,-]?\s*(penulis|editor|reporter|kontributor|oleh|author|reporter/editor)$', '', author, flags=re.I)
+    
+    for separator in [" | ", " / ", " - ", " – ", " — "]:
+        if separator in author:
+            author = author.split(separator)[0]
+            
+    if "/" in author:
+        parts = author.split("/")
+        author = parts[0]
+    author = re.sub(r'^(penulis|editor|reporter|kontributor|oleh|author|reporter/editor)\s*[:/,-]\s*', '', author, flags=re.I)
+    author = re.sub(r'\s+[:/,-]?\s*(penulis|editor|reporter|kontributor|oleh|author|reporter/editor)$', '', author, flags=re.I)
+    
+    author = re.sub(r'^kontributor\s+([a-zA-Z\s]{3,30}),\s*', '', author, flags=re.I)
+    
+    author = re.sub(r'[\(\[][^\]\)]*[\)\]]', '', author)
+    
+    author = author.strip("()[]{} :,-.|/\\")
+    
+    lower_author = author.lower()
+    
+    generic_names = [
+        "kompas cyber media", "kompas.com", "kompas", "redaksi", "halaman", "admin",
+        "shutterstock", "freepik", "unsplash", "istock", "pexels", "dok.", "dok",
+        "afp", "reuters", "antara", "ap", "getty images", "getty", "tangkapan layar",
+        "tangkapan", "youtube", "instagram", "facebook", "twitter", "tiktok", "repro"
+    ]
+    
+    if not author or lower_author in [")", "(", "]", "[", "}", "{"] or any(x in lower_author for x in generic_names):
+        return "Kompas.com"
+        
+    return author.title()
 
 def clean_article(article: dict) -> dict:
     if article.get("title"):
@@ -77,9 +116,10 @@ def clean_article(article: dict) -> dict:
         article["content"] = content
         article["word_count"] = len(content.split())
     if article.get("author"):
-        article["author"] = normalize_whitespace(
+        cleaned_author = normalize_whitespace(
             fix_encoding(clean_html(article["author"]))
         )
+        article["author"] = clean_author_name(cleaned_author)
     if article.get("tags"):
         article["tags"] = [
             normalize_whitespace(fix_encoding(tag))

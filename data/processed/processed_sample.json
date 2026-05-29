@@ -1,0 +1,772 @@
+[
+  {
+    "url": "https://internasional.kompas.com/read/2026/05/13/224353370/trump-boyong-18-ceo-ke-china-mau-bertemu-xi-jinping",
+    "title": "Trump Boyong 18 CEO ke China, Mau Bertemu Xi Jinping",
+    "content": "BEIJING, Presiden Amerika Serikat Donald Trump membawa 18 CEO dan eksekutif perusahaan besar AS dalam kunjungannya ke China pekan ini. Delegasi bisnis yang ikut ke Beijing mencakup bos perusahaan teknologi, keuangan, penerbangan, hingga pembayaran digital seperti Elon Musk, Tim Cook, dan Jensen Huang. Kunjungan ini menjadi lawatan pertama presiden AS ke China dalam hampir satu dekade. . Selain Huang, Cook, dan Musk, delegasi resmi AS juga diisi sejumlah tokoh bisnis papan atas seperti Larry Fink dari BlackRock, Stephen Schwarzman dari Blackstone, hingga Kelly Ortberg dari Boeing. Eksekutif lain yang ikut dalam rombongan, sebagaimana dilaporkan Business Times, antara lain: Menurut pejabat Gedung Putih kepada BBC, lebih dari selusin eksekutif AS ikut dalam lawatan tersebut. Kehadiran CEO Nvidia, Jensen Huang, menjadi sorotan karena awalnya ia tidak masuk daftar delegasi resmi. Nvidia merupakan salah satu perusahaan yang berada di pusat persaingan AS-China dalam bidang kecerdasan buatan dan semikonduktor. BBC melaporkan Huang akhirnya naik ke Air Force One tujuan Beijing saat pesawat itu mengisi bahan bakar di Anchorage, Alaska. \"Jensen menghadiri pertemuan puncak atas undangan Presiden Trump untuk mendukung Amerika dan tujuan pemerintahan,\" kata juru bicara Nvidia kepada BBC. BBC juga menyebut Trump menelepon Huang secara langsung pada Selasa pagi setelah mengetahui bos Nvidia itu belum masuk daftar delegasi. . \"Faktanya, Jensen saat ini berada di Air Force One dan, kecuali saya memintanya turun, yang kemungkinan besar tidak akan terjadi, laporan CNBC salah atau, seperti yang dikatakan dalam politik, BERITA PALSU!\" tulis Trump di media sosial.",
+    "author": "(BRENDAN SMIALOWSKI)",
+    "category": "Read",
+    "tags": [
+      "China",
+      "Donald Trump",
+      "trump",
+      "trump bawa 18 ceo ke china",
+      "KTT trump xi",
+      "Donald Trump",
+      "China",
+      "Bos perusahaan AS",
+      "Trump boyong 18 bos perusahaan AS ke China"
+    ],
+    "pub_date": "2026-05-13",
+    "scraped_at": "2026-05-14T12:19:32.376561+00:00",
+    "word_count": 242,
+    "sentiment_label": "neutral",
+    "sentiment_score": 0.8988,
+    "entities": [
+      {
+        "name": "AS",
+        "type": "LOCATION",
+        "count": 5,
+        "wikipedia_url": "https://en.wikipedia.org/wiki/As",
+        "wikidata_id": "Q190580",
+        "deskripsi": "As, AS, A. S., A/S or similar may refer to:",
+        "nel_matched": true,
+        "nel_score": 0.75,
+        "nel_similarity": 1.0,
+        "nel_language": "en"
+      },
+      {
+        "name": "China",
+        "type": "LOCATION",
+        "count": 4,
+        "wikipedia_url": "https://en.wikipedia.org/wiki/China",
+        "wikidata_id": "Q148",
+        "deskripsi": "China, officially the People's Republic of China (PRC), is a country in East Asia. It is the second-most populous country after India, with a population exceeding 1.4 billion, representing 17% of the world's population. China borders fourteen countries by land across an area of 9.6 million square kilometers (3,700,000 sq mi), making it the third-largest country by area.",
+        "nel_matched": true,
+        "nel_score": 0.75,
+        "nel_similarity": 1.0,
+        "nel_language": "en"
+      },
+      {
+        "name": "Amerika Serikat",
+        "type": "LOCATION",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Amerika_Serikat",
+        "wikidata_id": "Q30",
+        "deskripsi": "Amerika Serikat (AS), atau umumnya Amerika saja, adalah negara republik konstitusional federal yang terdiri dari lima puluh negara bagian dan sebuah distrik federal. Negara ini terletak di bagian tengah Amerika Utara, yang menjadi lokasi dari empat puluh delapan negara bagian yang saling bersebelahan, beserta distrik ibu kota Washington, D.C. Amerika Serikat diapit oleh Samudra Pasifik dan Atlantik di sebelah barat dan timur, berbatasan dengan Kanada di sebelah utara, dan Meksiko di sebelah selatan. Dua negara bagian lainnya, yaitu Alaska dan Hawaii, terletak terpisah dari dataran utama Amerika Serikat.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "Amerika Serikat Donald Trump",
+        "type": "PERSON",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Donald_Trump",
+        "wikidata_id": "Q22686",
+        "deskripsi": "Donald John Trump (; lahir 14 Juni 1946) adalah pebisnis, presenter acara realitas, dan politikus Amerika Serikat yang menjabat sebagai Presiden Amerika Serikat ke-45 dari 2017 hingga 2021 dan ke-47 sejak 2025. Trump adalah satu-satunya yang menjadi Presiden Amerika Serikat dengan belum pernah menyentuh atau belum pernah pengalaman memegang jabatan politik sama sekali, tetapi hanya pernah pengalaman dalam memegang ekonomi berbisnis saja di masa kehidupan pribadinya dari Sejarah Amerika Serikat.\nTrump meraih gelar sarjana dari jurusan ekonomi di Universitas Pennsylvania pada tahun 1968.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      },
+      {
+        "name": "Trump",
+        "type": "PERSON",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Donald_Trump",
+        "wikidata_id": "Q22686",
+        "deskripsi": "Donald John Trump (; lahir 14 Juni 1946) adalah pebisnis, presenter acara realitas, dan politikus Amerika Serikat yang menjabat sebagai Presiden Amerika Serikat ke-45 dari 2017 hingga 2021 dan ke-47 sejak 2025. Trump adalah satu-satunya yang menjadi Presiden Amerika Serikat dengan belum pernah menyentuh atau belum pernah pengalaman memegang jabatan politik sama sekali, tetapi hanya pernah pengalaman dalam memegang ekonomi berbisnis saja di masa kehidupan pribadinya dari Sejarah Amerika Serikat.\nTrump meraih gelar sarjana dari jurusan ekonomi di Universitas Pennsylvania pada tahun 1968.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      }
+    ],
+    "persons": [
+      "Amerika Serikat Donald Trump",
+      "Trump"
+    ],
+    "organizations": [],
+    "locations": [
+      "AS",
+      "China",
+      "Amerika Serikat"
+    ],
+    "has_embedding": true
+  },
+  {
+    "url": "https://www.kompas.com/tren/read/2026/05/13/061500765/jelang-bertemu-xi-jinping-trump-tegaskan-tak-butuh-bantuan-china-untuk",
+    "title": "Jelang Bertemu Xi Jinping, Trump Tegaskan Tak Butuh Bantuan China untuk Akhiri Perang Iran",
+    "content": "WASHINGTON DC, Presiden Amerika Serikat (AS) Donald Trump mengatakan dirinya tidak merasa membutuhkan bantuan China untuk mengakhiri perang dengan Iran, di tengah semakin menipisnya harapan tercapainya kesepakatan damai permanen. Pernyataan itu disampaikan Trump pada Selasa (13/5/2026), menjelang pertemuan penting dengan Presiden China Xi Jinping di Beijing. Trump menegaskan, AS mampu mengakhiri konflik dengan Iran tanpa campur tangan China. . Kami akan menang dengan satu cara atau cara lain, secara damai ataupun tidak,\" kata Trump kepada wartawan, sebagaimana dilansir Reuters. Hingga kini, lebih dari satu bulan setelah gencatan senjata rapuh diberlakukan, belum ada kemajuan berarti menuju kesepakatan yang benar-benar mengakhiri permusuhan kedua negara. Di sisi lain, Iran disebut semakin memperkuat pengaruhnya di Selat Hormuz. Sejumlah sumber yang mengetahui persoalan itu mengatakan kepada Reuters, bahwa Teheran telah mencapai kesepakatan dengan Irak dan Pakistan untuk pengiriman minyak serta gas alam cair dari kawasan tersebut. Beberapa negara lain juga disebut mulai menjajaki kerja sama serupa, yang dinilai dapat memperkuat posisi Iran atas jalur perairan strategis itu dalam jangka panjang. Pemerintah AS mengungkapkan pejabat senior AS dan China bulan lalu telah sepakat bahwa tidak boleh ada negara yang memungut biaya atas lalu lintas kapal di kawasan tersebut. Langkah itu disebut sebagai upaya menunjukkan adanya kesamaan pandangan Washington dan Beijing menjelang pertemuan Trump-Xi Jinping. . Trump diperkirakan akan membahas perang Iran dalam pertemuannya dengan Xi pekan ini. Ia juga diprediksi mendorong China agar membujuk Teheran mencapai kesepakatan dengan Washington demi mengakhiri konflik. AS diketahui menuntut Iran menghentikan program nuklirnya serta mengakhiri kontrol ketat atas Selat Hormuz. Tetapi Iran memberikan syarat balasan, termasuk kompensasi kerusakan akibat perang, penghentian blokade laut AS, serta penghentian perang di berbagai front, termasuk di Lebanon, tempat sekutu AS, Israel, masih berperang melawan kelompok Hezbollah yang didukung Iran. Trump sebelumnya menepis tuntutan Iran tersebut dan menyebutnya sebagai \"omong kosong\".",
+    "author": "(AFP/MANDEL NGAN)",
+    "category": "Tren",
+    "tags": [
+      "trump",
+      "Xi Jinping",
+      "harga minyak dunia",
+      "trump bertemu xi jinping",
+      "-",
+      "Dunia",
+      "Iran",
+      "Perang"
+    ],
+    "pub_date": "2026-05-12",
+    "scraped_at": "2026-05-14T12:19:34.743423+00:00",
+    "word_count": 296,
+    "sentiment_label": "neutral",
+    "sentiment_score": 0.8581,
+    "entities": [
+      {
+        "name": "AS",
+        "type": "LOCATION",
+        "count": 7,
+        "wikipedia_url": "https://en.wikipedia.org/wiki/As",
+        "wikidata_id": "Q190580",
+        "deskripsi": "As, AS, A. S., A/S or similar may refer to:",
+        "nel_matched": true,
+        "nel_score": 0.75,
+        "nel_similarity": 1.0,
+        "nel_language": "en"
+      },
+      {
+        "name": "Israel",
+        "type": "LOCATION",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Israel",
+        "wikidata_id": "Q801",
+        "deskripsi": "Israel, dengan nama resmi Negara Israel, adalah negara  di Asia Barat yang dikelilingi oleh Laut Tengah, Lebanon, Suriah, Palestina, Yordania, Mesir. Dengan populasi sebesar 7,5 juta jiwa, Israel merupakan satu-satunya negara Yahudi di dunia. Selain itu, terdapat pula beberapa kelompok etnis minoritas lainnya, meliputi etnis Arab yang berkewarganegaraan Israel, beserta kelompok-kelompok keagamaan lainnya seperti Muslim, Kristen, Druze, Samaria dan lain-lain.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "Iran",
+        "type": "LOCATION",
+        "count": 10,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Iran",
+        "wikidata_id": "Q794",
+        "deskripsi": "Iran, dengan nama resmi Republik Islam Iran (bahasa Persia: جمهوری اسلامی ايرانcode: fa is deprecated  Jomhuri-ye Eslami-ye Iran), juga dikenal sebagai Persia, adalah sebuah negara yang terletak di Asia Barat. Meski negara ini telah dikenal penduduk lokal sebagai \"Iran\" sejak zaman kuno, hingga 1935 Iran masih disebut sebagai \"Persia\" di dunia Barat. Pada 1959, Mohammad Reza Pahlavi mengumumkan bahwa kedua istilah tersebut boleh digunakan.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "China",
+        "type": "LOCATION",
+        "count": 6,
+        "wikipedia_url": "https://en.wikipedia.org/wiki/China",
+        "wikidata_id": "Q148",
+        "deskripsi": "China, officially the People's Republic of China (PRC), is a country in East Asia. It is the second-most populous country after India, with a population exceeding 1.4 billion, representing 17% of the world's population. China borders fourteen countries by land across an area of 9.6 million square kilometers (3,700,000 sq mi), making it the third-largest country by area.",
+        "nel_matched": true,
+        "nel_score": 0.75,
+        "nel_similarity": 1.0,
+        "nel_language": "en"
+      },
+      {
+        "name": "Amerika Serikat",
+        "type": "LOCATION",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Amerika_Serikat",
+        "wikidata_id": "Q30",
+        "deskripsi": "Amerika Serikat (AS), atau umumnya Amerika saja, adalah negara republik konstitusional federal yang terdiri dari lima puluh negara bagian dan sebuah distrik federal. Negara ini terletak di bagian tengah Amerika Utara, yang menjadi lokasi dari empat puluh delapan negara bagian yang saling bersebelahan, beserta distrik ibu kota Washington, D.C. Amerika Serikat diapit oleh Samudra Pasifik dan Atlantik di sebelah barat dan timur, berbatasan dengan Kanada di sebelah utara, dan Meksiko di sebelah selatan. Dua negara bagian lainnya, yaitu Alaska dan Hawaii, terletak terpisah dari dataran utama Amerika Serikat.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "China Xi Jinping",
+        "type": "PERSON",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Xi_Jinping",
+        "wikidata_id": "Q15031",
+        "deskripsi": "Xi Jinping ( Hanzi: 习近平; Pinyin: Xí Jìnpíng, [ɕǐ tɕîn pʰǐŋ] (lahir 15 Juni 1953) adalah Sekretaris Jenderal Partai Komunis Presiden ke-7, dan Ketua Komisi Militer Sentral Republik Rakyat Tiongkok. Ia juga menjadi Sekretaris Jenderal Komite Tetap Politbiro PKT. Pada 15 November 2012, setelah sebuah pemungutan suara dalam pertemuan parlemen di Beijing, ia terpilih sebagai Sekretaris Jenderal Partai Komunis Tiongkok.\nJinping adalah putra dari veteran komunis Xi Zhongxun (1913–2002), dan mengawali sebagian besar karier politiknya di provinsi Fujian.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      }
+    ],
+    "persons": [
+      "China Xi Jinping"
+    ],
+    "organizations": [],
+    "locations": [
+      "AS",
+      "Israel",
+      "Iran",
+      "China",
+      "Amerika Serikat"
+    ],
+    "has_embedding": true
+  },
+  {
+    "url": "https://www.kompas.com/food/read/2026/05/13/071804775/resep-ayam-bakar-teflon-ala-rumahan-gurih-dan-tidak-mudah-gosong",
+    "title": "Resep Ayam Bakar Teflon ala Rumahan, Gurih dan Tidak Mudah Gosong",
+    "content": "Menu ayam bakar kecap bisa jadi pilihan menu makan sehari-hari yang lezat. Namun seringkali banyak orang enggan membuatnya karena proses pembuatannya yang sulit. Nah, pada resep ayam bakar ini, kamu bisa membuat ayam bakar kecap dengan bahan sederhana dan proses memasak yang cepat. Cukup menggunakan teflon sebagai alat panggang yang mudah dan praktis. Dilansir dari Sajian Sedap, berikut resep menu ayam bakar kecap sederhana. Kamu bisa membuatnya mudah di rumah saja, cocok bagi pemula.",
+    "author": "(freepik.com)",
+    "category": "Kuliner",
+    "tags": [
+      "resep ayam bakar teflon",
+      "Resep ayam bakar",
+      "resep ayam bakar kecap",
+      "Sajian Sedap",
+      "Indonesia",
+      "Resep Ayam Bakar Teflon ala Rumahan",
+      "Gurih dan Tidak Mudah Gosong",
+      "Resep Ayam Bakar Teflon ala Rumahan",
+      "Gurih dan Tidak Mudah Gosong"
+    ],
+    "pub_date": "2026-05-13",
+    "scraped_at": "2026-05-14T12:19:36.352919+00:00",
+    "word_count": 74,
+    "sentiment_label": "positive",
+    "sentiment_score": 0.9875,
+    "entities": [],
+    "persons": [],
+    "organizations": [],
+    "locations": [],
+    "has_embedding": true
+  },
+  {
+    "url": "https://www.kompas.com/hype/read/2026/05/13/122538666/sinopsis-punisher-one-last-kill-aksi-brutal-jon-bernthal-yang-paling-kelam",
+    "title": "Sinopsis Punisher: One Last Kill, Aksi Brutal Jon Bernthal yang Paling Kelam di MCU",
+    "content": "Marvel kembali membawa sosok Frank Castle alias The Punisher dalam tayangan spesial bertajuk Punisher: One Last Kill. Selama 48 menit, penonton diajak masuk ke sisi paling gelap Frank Castle, veteran perang yang hidup dengan trauma berkepanjangan setelah kehilangan istri dan anak-anaknya. Jon Bernthal kembali memerankan karakter antihero tersebut dengan intensitas emosional yang disebut-sebut sebagai salah satu penampilan terbaiknya di Marvel Cinematic Universe (MCU). . Karakter tersebut kemudian mendapatkan serial solo The Punisher yang berjalan selama dua musim sebelum akhirnya seluruh serial Marvel Netflix dipindahkan ke Disney+. . Ia menghabiskan waktunya berlatih fisik sambil dikelilingi tempelan kliping koran di dinding, menyerupai ruang seorang paranoid yang dihantui masa lalu. Di luar apartemennya, New York berada dalam kekacauan. Kelompok kriminal membuat kerusuhan di jalanan, membakar mobil polisi, menyerang warga sipil, hingga melakukan aksi sadis yang memicu kemarahan Castle. . Tidak Akan Kembali ke Marvel Cinematic Universe Kondisi kota yang kacau menjadi cerminan kondisi mental Frank. Trauma perang dan kehilangan keluarganya perlahan kembali menghancurkan pikirannya. Ia mulai mengalami halusinasi tentang istri, anak-anak, serta rekan marinir yang telah meninggal. Puncaknya terjadi dalam adegan emosional di makam keluarganya, ketika Frank meluapkan seluruh rasa bersalah, amarah, dan kesedihan yang selama ini dipendam. . Sejak itu, kota New York berubah menjadi medan perang. Frank Castle harus menghadapi rentetan serangan brutal dari kelompok kriminal.",
+    "author": "(IMDb)",
+    "category": "Hype",
+    "tags": [
+      "punisher one last kill",
+      "sinopsis Punisher One Last Kill"
+    ],
+    "pub_date": "2026-05-13",
+    "scraped_at": "2026-05-14T12:19:37.996791+00:00",
+    "word_count": 215,
+    "sentiment_label": "neutral",
+    "sentiment_score": 0.5061,
+    "entities": [
+      {
+        "name": "Solo",
+        "type": "LOCATION",
+        "count": 1,
+        "wikipedia_url": "https://en.wikipedia.org/wiki/Solo",
+        "wikidata_id": "Q82583",
+        "deskripsi": "Solo or SOLO may refer to:",
+        "nel_matched": true,
+        "nel_score": 0.75,
+        "nel_similarity": 1.0,
+        "nel_language": "en"
+      },
+      {
+        "name": "Medan",
+        "type": "LOCATION",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Kota_Medan",
+        "wikidata_id": "Q5972",
+        "deskripsi": "Kota Medan (Abjad Jawi: ميدن; Surat Batak: ᯔᯩᯑᯉ᯳; Aksara Han: 棉蘭; Aksara Tamil: மேடான்) adalah ibu kota Provinsi Sumatera Utara, Indonesia. Kota ini merupakan kota terbesar keempat di Indonesia setelah DKI Jakarta, Surabaya, dan  Bandung, serta kota terbesar di luar Pulau Jawa, sekaligus kota terbesar di Pulau Sumatra.\nKota Medan merupakan pintu gerbang wilayah Indonesia bagian barat dengan keberadaan Pelabuhan Belawan dan Bandar Udara Internasional Kualanamu yang merupakan bandara terbesar kedua di Indonesia.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      }
+    ],
+    "persons": [],
+    "organizations": [],
+    "locations": [
+      "Solo",
+      "Medan"
+    ],
+    "has_embedding": true
+  },
+  {
+    "url": "https://www.kompas.com/properti/read/2026/05/13/132751821/usai-kpr-lunas-bayar-sertifikat-roya-cuma-rp-50000",
+    "title": "Usai KPR Lunas, Bayar Sertifikat Roya Cuma Rp 50.000",
+    "content": "JAKARTA, Setelah cicilan kredit pemilikan rumah (KPR) lunas, pemilik rumah masih perlu mengurus roya sertifikat agar catatan hak tanggungan dari bank dihapus secara resmi di Kantor Pertanahan (Kantah). Proses ini penting dilakukan supaya sertifikat tanah atau rumah kembali bersih dan tidak lagi tercatat sebagai jaminan kredit. Selain proses dan syaratnya, biaya pengurusan roya juga menjadi hal yang kerap ditanyakan masyarakat. Dilansir laman Kementerian Agraria dan Tata Ruang/Badan Pertanahan Nasional (ATR/BPN) dan aplikasi Sentuh Tanahku, biaya roya yang dikenakan kepada masyarakat sebesar Rp 50.000 untuk setiap sertifikat tanah. Asal tahu saja, roya merupakan pencoretan hak tanggungan pada buku tanah dan sertifikat setelah utang yang dijaminkan dinyatakan lunas. . Kepala Biro Hubungan Masyarakat (Humas) dan Protokol Kementerian ATR/BPN Shamy Ardian memastikan hal ini, dikutip Kompas.com, Rabu (13/5/2026). \"Roya adalah dokumen resmi yang menunjukkan bahwa Anda telah bebas dari tanggungan utang kredit rumah. Dokumen ini dikeluarkan sebagai bukti bahwa Hak Tanggungan atas sebidang tanah telah dihapuskan,\" ujar Shamy. Dalam Pasal 18 disebutkan, salah satu penyebab hapusnya Hak Tanggungan adalah lunasnya utang yang dijamin dengan Hak Tanggungan tersebut. Selanjutnya, Pasal 22 mengatur bahwa setelah Hak Tanggungan hapus, Kantor Pertanahan akan mencoret catatan Hak Tanggungan pada buku tanah dan sertifikatnya. . Pencoretan tersebut dilakukan untuk ketertiban administrasi pertanahan. Sebelum mengurus roya, masyarakat perlu menyiapkan sejumlah dokumen persyaratan. Dokumen tersebut antara lain sebagai berikut: Bagi badan hukum, pemohon juga perlu melampirkan fotokopi akta pendirian dan pengesahan badan hukum. Selain itu, pemohon diminta menyiapkan data terkait identitas diri serta informasi mengenai luas, letak, dan penggunaan tanah yang dimohonkan roya. Pengurusan roya dilakukan dengan mengajukan permohonan ke loket pelayanan Kantor Pertanahan sambil membawa seluruh dokumen persyaratan. . Selanjutnya, Kantor Pertanahan memproses pencatatan pembukuan hak dan penerbitan sertifikat tanah yang telah bersih dari catatan Hak Tanggungan. Setelah proses selesai, pemohon dapat mengambil sertifikat di loket pelayanan. Adapun lama proses penyelesaian roya diperkirakan sekitar lima hari kerja sejak dokumen dinyatakan lengkap oleh petugas layanan Kantor Pertanahan.",
+    "author": "Suhaiela Bahfein Penulis",
+    "category": "Properti",
+    "tags": [
+      "roya",
+      "biaya urus roya",
+      "roya adalah",
+      "roya cicilan kpr lunas",
+      "kpr lunas urus roya",
+      "biaya urus roya usai kpr lunas",
+      "urus roya rp 50000 usai kpr lunas",
+      "shamy ardian",
+      "jakarta",
+      "roya",
+      "cara urus roya"
+    ],
+    "pub_date": "2026-05-13",
+    "scraped_at": "2026-05-14T12:19:39.597347+00:00",
+    "word_count": 316,
+    "sentiment_label": "neutral",
+    "sentiment_score": 0.899,
+    "entities": [
+      {
+        "name": "Jakarta",
+        "type": "LOCATION",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Daerah_Khusus_Ibukota_Jakarta",
+        "wikidata_id": "Q3630",
+        "deskripsi": "Jakarta, secara resmi bernama Daerah Khusus Ibukota Jakarta atau DKI Jakarta, sebelumnya dikenal sebagai Batavia, adalah ibu kota Indonesia dan sekaligus daerah otonom setingkat provinsi. Jakarta memiliki lima kota administrasi dan satu kabupaten administrasi. DKI Jakarta dapat digolongkan sebagai kota metropolitan, dan mendapat julukan The Big Durian karena dianggap sebanding dengan Kota New York (Big Apple) di Amerika Serikat.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      },
+      {
+        "name": "Kementerian Agraria dan Tata Ruang",
+        "type": "ORGANIZATION",
+        "count": 1,
+        "wikipedia_url": "https://www.atrbpn.go.id/",
+        "wikidata_id": "Q19752193",
+        "deskripsi": "Kementerian Agraria dan Tata Ruang/Badan Pertanahan Nasional adalah kementerian yang menyelenggarakan urusan pemerintahan di bidang pertanahan dan suburusan tata ruang yang merupakan lingkup urusan pemerintahan di bidang pekerjaan umum. Badan Pertanahan Nasional adalah Lembaga Pemerintah Nonkementerian yang menyelenggarakan tugas pemerintahan di bidang pertanahan. Kementerian Agraria dan Tata Ruang Republik Indonesia dijabat oleh seorang menteri yang juga menjabat sebagai Kepala Badan Pertanahan Nasional.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      }
+    ],
+    "persons": [],
+    "organizations": [
+      "Kementerian Agraria dan Tata Ruang"
+    ],
+    "locations": [
+      "Jakarta"
+    ],
+    "has_embedding": true
+  },
+  {
+    "url": "https://internasional.kompas.com/read/2026/05/14/144300470/as-panik-sebut-iran-sangat-dekat-dengan-produksi-senjata-nuklir",
+    "title": "AS Panik, Sebut Iran Sangat Dekat dengan Produksi Senjata Nuklir",
+    "content": "WASHINGTON DC, Menteri Energi Amerika Serikat (AS) Chris Wright memperingatkan bahwa Iran sangat dekat dengan pengembangan uranium yang diperkaya untuk keperluan senjata nuklir. Dia mengatakan pada Rabu (13/5/2026), uranium yang diperkaya milik Iran membuat mereka hanya tinggal beberapa minggu lagi dari ambang batas yang diperlukan untuk memiliki senjata nuklir. \"Mereka hanya butuh beberapa minggu lagi untuk memperkaya uranium tersebut menjadi uranium tingkat senjata,\" kata Wright kepada Komite Angkatan Bersenjata Senat, dilansir New York Post, Rabu (13/5/2026). \"Masih ada proses persenjataan yang terjadi setelah itu, tetapi mereka sudah cukup dekat,\" sambungnya. .) dalam sidang tersebut. \"Mereka memiliki uranium yang diperkaya sekitar 20 persen, dan itu beberapa minggu lebih lambat dibandingkan dengan yang 60 persen,\" tambah Wright. Menurutnya, dengan uranium yang tidak diperkaya, proses mendapatkan uranium yang layak untuk senjata nuklir membutuhkan waktu yang lama. . \"Ini sangat mengkhawatirkan,\" tambahnya. Sementara itu, Blumenthal mengatakan bahwa Trump kemungkinan harus memperoleh 11 ton uranium yang diperkaya 20 persen tersebut. \"Selain satu ton uranium yang diperkaya 60 persen, jika ia (Trump) ingin sepenuhnya menghilangkan ancaman tersebut,\" katanya. .000 pon uranium yang diperkaya hingga 60 persen. Teheran juga memiliki 11 ton uranium lainnya dengan tingkat pengayaan yang lebih rendah. Utusan khusus AS Steve Witkoff juga secara terbuka menyatakan bahwa Iran mengeklaim memiliki uranium yang diperkaya hingga 60 persen yang cukup untuk membuat 11 bom nuklir jika diperkaya hingga 90 persen. Menurut para ahli nuklir, mencapai tingkat pengayaan 60 persen merupakan lompatan teknis yang jauh lebih besar dibanding dari 60 ke 90 persen, yang merupakan tingkat pengayaan untuk senjata.",
+    "author": "(MILITER IRAN via AFP)",
+    "category": "Read",
+    "tags": [
+      "Iran",
+      "Amerika Serikat",
+      "perang iran",
+      "uranium iran",
+      "AS khawatir dengan uranium Iran",
+      "uranium yang diperkaya milik Iran",
+      "Chris Wright",
+      "dunia",
+      "AS khawatir dengan uranium Iran",
+      "uranium iran"
+    ],
+    "pub_date": "2026-05-14",
+    "scraped_at": "2026-05-14T12:41:50.077332+00:00",
+    "word_count": 252,
+    "sentiment_label": "negative",
+    "sentiment_score": 0.7427,
+    "entities": [
+      {
+        "name": "AS",
+        "type": "LOCATION",
+        "count": 3,
+        "wikipedia_url": "https://en.wikipedia.org/wiki/As",
+        "wikidata_id": "Q190580",
+        "deskripsi": "As, AS, A. S., A/S or similar may refer to:",
+        "nel_matched": true,
+        "nel_score": 0.75,
+        "nel_similarity": 1.0,
+        "nel_language": "en"
+      },
+      {
+        "name": "Iran",
+        "type": "LOCATION",
+        "count": 4,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Iran",
+        "wikidata_id": "Q794",
+        "deskripsi": "Iran, dengan nama resmi Republik Islam Iran (bahasa Persia: جمهوری اسلامی ايرانcode: fa is deprecated  Jomhuri-ye Eslami-ye Iran), juga dikenal sebagai Persia, adalah sebuah negara yang terletak di Asia Barat. Meski negara ini telah dikenal penduduk lokal sebagai \"Iran\" sejak zaman kuno, hingga 1935 Iran masih disebut sebagai \"Persia\" di dunia Barat. Pada 1959, Mohammad Reza Pahlavi mengumumkan bahwa kedua istilah tersebut boleh digunakan.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "Amerika Serikat",
+        "type": "LOCATION",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Amerika_Serikat",
+        "wikidata_id": "Q30",
+        "deskripsi": "Amerika Serikat (AS), atau umumnya Amerika saja, adalah negara republik konstitusional federal yang terdiri dari lima puluh negara bagian dan sebuah distrik federal. Negara ini terletak di bagian tengah Amerika Utara, yang menjadi lokasi dari empat puluh delapan negara bagian yang saling bersebelahan, beserta distrik ibu kota Washington, D.C. Amerika Serikat diapit oleh Samudra Pasifik dan Atlantik di sebelah barat dan timur, berbatasan dengan Kanada di sebelah utara, dan Meksiko di sebelah selatan. Dua negara bagian lainnya, yaitu Alaska dan Hawaii, terletak terpisah dari dataran utama Amerika Serikat.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "Energi Amerika Serikat",
+        "type": "PERSON",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Hidangan_Amerika_Serikat",
+        "wikidata_id": "Q40578",
+        "deskripsi": "Hidangan Amerika Serikat adalah jenis kuliner yang berkembang di negara-negara bagian Amerika Serikat, mulai dari daratan utama sampai kepulauan Hawaii. Hidangan-hidangan Amerika Serikat sudah populer di berbagai negara di dunia seiring ekspanasi ekonomi dan gerai-gerai rumah makan Amerika Serikat yang menjual hamburger, kentang goreng, hot dog, piza (dengan khasnya sendiri) dan barbekyu. Mencerminkan pengaruh dari berbagai imigran dan suku bangsa asli, hidangan Amerika Serikat merupakan salah satu bentuk kuliner terkaya di dunia.",
+        "nel_matched": true,
+        "nel_score": 0.9,
+        "nel_similarity": 0.782608695652174,
+        "nel_language": "id"
+      }
+    ],
+    "persons": [
+      "Energi Amerika Serikat"
+    ],
+    "organizations": [],
+    "locations": [
+      "AS",
+      "Iran",
+      "Amerika Serikat"
+    ],
+    "has_embedding": true
+  },
+  {
+    "url": "https://www.kompas.com/badminton/read/2026/05/14/16204058/catatan-bersejarah-isyana-rinjani-usai-libas-wakil-china-di-thailand",
+    "title": "Catatan Bersejarah Isyana/Rinjani Usai Libas Wakil China di Thailand Open",
+    "content": "Ganda putri Isyana Syahira Meida/Rinjani Kwinnara Nastine sukses melenggang ke perempat final Thailand Open 2026. Pasangan muda jebolan PB Djarum ini mengunci tiket perempat final Thailand Open 2026 usai mengalahkan Luo Yi/Wang Ting Ge asal China, Kamis (14/5/2026). Bertanding di Nimibutr Arena, Bangkok, Hira/Jani, begitu sapaan akrab mereka, mengandaskan Luo/Wang dua gim langsung dengan skor 25-23, 21-13. Gim pertama berjalan ketat. Isyana/Rinjani sempat memimpin 18-14, namun Luo/Wang bisa mengejar dan berbalik tertinggal 18-20. . Mereka mengambil gim pertama dengan skor 25-23. \"Tadi di gim pertama pertandingannya cukup ramai. Setelah unggul 18-14, kami malah terlalu mengikuti pola mereka dan akhirnya tersusul,\" kata Isyana dalam keterangan tertulis PBSI. \"Setelah balik tertinggal 18-20 itu mereka juga mati sendiri jadi kami coba lebih tenang lagi, termasuk saat adu setting,\" jelasnya. Kepercayaan diri Isyana/Rinjani meningkat di gim kedua. Mereka memegang kendali permainan dan tak memberi kesempatan kepada lawan untuk berkembang. . Poin banyak diraih dari kesalahan lawan. Sebaliknya, pukulan dan penempatan bola Hira/Jani sangat akurat dan minim error. Mereka tampak nyaman mengontrol pertandingan dan mengamankan gim kedua 21-13. \"Di gim pertama kami masih kurang konsisten dengan pola yang disiapkan, jadi di gim kedua coba lebih konsisten,\" ujar Rinjani. \"Di sisi lain mereka juga seperti tidak enak mainnya, banyak melakukan kesalahan sendiri,\" imbuhnya. . Inilah kali pertama mereka menembus perempat final turnamen BWF World Tour level Super 500. Sebuah pencapaian yang membuktikan bahwa Hira/Jani terus berkembang. Sebelumnya, prestasi terbaik Isyana/Rinjani adalah perempat final Super 300 di Syed Modi International 2025. Mereka juga sempat menjuarai Guwahati Masters 2025 (Super 100). Lolos ke perempat final Thailand Open 2026, Hira/Jani akan berjumpa Rin Iwanaga/Kie Nakanishi asal Jepang yang berstatus unggulan pertama, Jumat (15/5/2026). . Kami harus meningkatkan fokus di pertandingan selanjutnya,\" ungkap Isyana. \"Jangan gampang mati sendiri dan juga kami harus cepat tanggap, cepat adaptasi dengan cara bermain lawan yang beda-beda,\" sahut Rinjani.",
+    "author": "Indra Citra Sena Penulis",
+    "category": "Badminton",
+    "tags": [
+      "jepang",
+      "china",
+      "bulu tangkis",
+      "Thailand Open",
+      "bwf",
+      "Isyana Syahira Meida/Rinjani Kwinara Nastine",
+      "Isyana Syahira Meida",
+      "Rinjani Kwinnara Nastine",
+      "Bangkok",
+      "Bulu tangkis Indonesia",
+      "Thailand Open 2026"
+    ],
+    "pub_date": "2026-05-14",
+    "scraped_at": "2026-05-14T12:41:52.325419+00:00",
+    "word_count": 304,
+    "sentiment_label": "neutral",
+    "sentiment_score": 0.5499,
+    "entities": [
+      {
+        "name": "Jepang",
+        "type": "LOCATION",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Jepang",
+        "wikidata_id": "Q17",
+        "deskripsi": "Jepang (bahasa Jepang: 日本国, Nippon-koku atau Nihon-koku) adalah negara kesatuan yang bersistem parlementer dengan berbentuk monarki konstitusional dan juga negara kepulauan di Asia Timur. Letaknya di ujung barat Samudra Pasifik, di sebelah timur Laut Jepang, dan bersebelahan dengan Tiongkok, Korea Selatan, dan Rusia. Pulau-pulau paling utara berada di Laut Okhotsk dan wilayah paling selatan berupa kelompok pulau-pulau kecil di Laut Tiongkok Timur, tepatnya di sebelah selatan Okinawa yang berseberangan dengan Taiwan.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "China",
+        "type": "LOCATION",
+        "count": 2,
+        "wikipedia_url": "https://en.wikipedia.org/wiki/China",
+        "wikidata_id": "Q148",
+        "deskripsi": "China, officially the People's Republic of China (PRC), is a country in East Asia. It is the second-most populous country after India, with a population exceeding 1.4 billion, representing 17% of the world's population. China borders fourteen countries by land across an area of 9.6 million square kilometers (3,700,000 sq mi), making it the third-largest country by area.",
+        "nel_matched": true,
+        "nel_score": 0.75,
+        "nel_similarity": 1.0,
+        "nel_language": "en"
+      },
+      {
+        "name": "Thailand",
+        "type": "LOCATION",
+        "count": 4,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Thailand",
+        "wikidata_id": "Q869",
+        "deskripsi": "Thailand (bentuk baku: Tailan), dengan nama resmi Kerajaan Thailand dan dulunya bernama Siam (nama resmi hingga tahun 1939), adalah negara di Asia Tenggara yang berbatasan dengan Laos dan Kamboja di timur, Malaysia dan Teluk Siam di selatan, dan Myanmar dan Laut Andaman di barat. Thailand dahulu dikenal sebagai Siam sampai tanggal 11 Mei 1949. Pada Tahun 2023 Bank Negara Malaysia, Bank Indonesia dan Bank Thailand promosi uang lokal untuk keperluan transaksi.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      }
+    ],
+    "persons": [],
+    "organizations": [],
+    "locations": [
+      "Jepang",
+      "China",
+      "Thailand"
+    ],
+    "has_embedding": true
+  },
+  {
+    "url": "https://internasional.kompas.com/read/2026/05/14/183000370/tambah-kekuatan-israel-gelontorkan-rp-596-miliar-untuk-jet-tempur",
+    "title": "Tambah Kekuatan, Israel Gelontorkan Rp 596 Miliar untuk Jet Tempur",
+    "content": "TEL AVIV, Israel menandatangani kontrak senilai lebih dari 34 juta dollar AS (Rp 596 miliar) untuk mengembangkan kemampuan \"jangkauan jauh\" bagi pesawat tempur F-35 Adir. Kementerian Pertahanan Israel pada Kamis (14/5/2026) menyebut Direktorat Pengadaan Pertahanan telah menandatangani kesepakatan dengan Cyclone, anak perusahaan milik Elbit Systems. Perjanjian tersebut termasuk pengembangan kemampuan jangkauan yang diperluas untuk jet tempur F-35 'Adir', yang diproduksi oleh Lockheed Martin. \"Kesepakatan yang bernilai lebih dari 34 juta dollar AS ini mencakup pengembangan dan integrasi tangki bahan bakar eksternal berdasarkan desain Cyclone, yang awalnya dikembangkan untuk F-16,\" demikian pernyataan tersebut dilansir Anadolu, Kamis. . Dengan cara mengurangi ketergantungan pada pengisian bahan bakar di udara dan meningkatkan fleksibilitas operasional dalam misi jarak jauh. Kesepakatan ini terjadi di tengah ketegangan regional setelah AS dan Israel melancarkan serangan terhadap Iran pada 28 Februari 2026. Menurut media Israel, Tel Aviv telah meningkatkan tingkat siaga militernya sebagai persiapan kemungkinan dimulainya kembali perang dengan Iran jika negosiasi antara Teheran dan Washington gagal. . Menurut laporan CNN, Minggu (3/5/2026), skuadron militer baru tersebut terdiri dari jet tempur F-35 dan F-15IA yang diproduksi oleh Lockheed Martin dan Boeing. Adapun nilai kesepakatan tersebut diperkirakan mencapai miliaran dolar AS, kata Menteri Pertahanan Israel, Israel Katz pada Minggu. . \"Misi kita jelas, untuk selalu selangkah lebih maju dari musuh kita,\" lanjut dia. Katz menambahkan, persetujuan skuadron pesawat tempur tersebut adalah langkah pertama dalam mengimplementasikan rencana peningkatan kekuatan militer. Perkiraan biayanya adalah senilai 350 miliar shekel Israel (Rp 2.000 triliun) untuk dekade keamanan intensif guna melindungi negara tersebut.",
+    "author": "(SHUTTERSTOCK)",
+    "category": "Read",
+    "tags": [
+      "Israel",
+      "pesawat F-35",
+      "pesawat tempur Israel",
+      "Israel kembangkan jangkauan pesawat temput",
+      "Kementerian pertahanan israel",
+      "dunia",
+      "Israel kembangkan jangkauan pesawat temput",
+      "pesawat tempur Israel"
+    ],
+    "pub_date": "2026-05-14",
+    "scraped_at": "2026-05-14T12:41:53.943519+00:00",
+    "word_count": 248,
+    "sentiment_label": "neutral",
+    "sentiment_score": 0.9714,
+    "entities": [
+      {
+        "name": "AS",
+        "type": "LOCATION",
+        "count": 4,
+        "wikipedia_url": "https://en.wikipedia.org/wiki/As",
+        "wikidata_id": "Q190580",
+        "deskripsi": "As, AS, A. S., A/S or similar may refer to:",
+        "nel_matched": true,
+        "nel_score": 0.75,
+        "nel_similarity": 1.0,
+        "nel_language": "en"
+      },
+      {
+        "name": "Israel",
+        "type": "LOCATION",
+        "count": 8,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Israel",
+        "wikidata_id": "Q801",
+        "deskripsi": "Israel, dengan nama resmi Negara Israel, adalah negara  di Asia Barat yang dikelilingi oleh Laut Tengah, Lebanon, Suriah, Palestina, Yordania, Mesir. Dengan populasi sebesar 7,5 juta jiwa, Israel merupakan satu-satunya negara Yahudi di dunia. Selain itu, terdapat pula beberapa kelompok etnis minoritas lainnya, meliputi etnis Arab yang berkewarganegaraan Israel, beserta kelompok-kelompok keagamaan lainnya seperti Muslim, Kristen, Druze, Samaria dan lain-lain.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "Iran",
+        "type": "LOCATION",
+        "count": 2,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Iran",
+        "wikidata_id": "Q794",
+        "deskripsi": "Iran, dengan nama resmi Republik Islam Iran (bahasa Persia: جمهوری اسلامی ايرانcode: fa is deprecated  Jomhuri-ye Eslami-ye Iran), juga dikenal sebagai Persia, adalah sebuah negara yang terletak di Asia Barat. Meski negara ini telah dikenal penduduk lokal sebagai \"Iran\" sejak zaman kuno, hingga 1935 Iran masih disebut sebagai \"Persia\" di dunia Barat. Pada 1959, Mohammad Reza Pahlavi mengumumkan bahwa kedua istilah tersebut boleh digunakan.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "Kementerian Pertahanan Israel pada",
+        "type": "ORGANIZATION",
+        "count": 1,
+        "wikipedia_url": "https://mod.gov.il/",
+        "wikidata_id": "Q1862884",
+        "deskripsi": "Kementerian Pertahanan (Ibrani: מִשְׂרַד הַבִּטָּחוֹן, Misrad HaBitahon) adalah departemen pemerintah Israel yang bertugas melindungi Negara Israel dari ancaman militer dalam dan luar negeri. Pemimpin politiknya adalah Menteri Pertahanan Israel, dan kantornya terletak di HaKirya, Tel Aviv.\nKementerian Pertahanan mengawasi sebagian besar pasukan keamanan Israel, termasuk Pasukan Pertahanan Israel (IDF), Israel Military Industries (IMI Diarsipkan 2012-09-27 di Wayback Machine.), dan Israel Aircraft Industries (IAI).",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      },
+      {
+        "name": "Pertahanan Israel",
+        "type": "PERSON",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Pasukan_Pertahanan_Israel",
+        "wikidata_id": "Q58967",
+        "deskripsi": "Pasukan Pertahanan Israel (bahasa Ibrani: צבא ההגנה לישראל Tsva HaHagana LeYisrael , \"[Tentara] Angkatan untuk Pertahanan Israel\"), yang sering kali disingkat dengan singkatan bahasa Ibrani צה\"ל Tsahal, atau Tzahal, adalah sebutan bagi angkatan bersenjata Israel, yang terdiri atas Angkatan Darat Israel, Angkatan Udara Israel dan Angkatan Laut Israel. Dalam bahasa Inggris, dikenal sebagai Israel Defence Forces atau disingkat IDF.\nIDF adalah salah satu militer paling unik dunia karena juga mengikutkan perempuan dalam wajib militer sejak pembentukannya. IDF adalah salah satu badan paling menonjol dalam masyarakat Israel karena pengaruhnya terhadap ekonomi, budaya dan panggung politik Israel.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      }
+    ],
+    "persons": [
+      "Pertahanan Israel"
+    ],
+    "organizations": [
+      "Kementerian Pertahanan Israel pada"
+    ],
+    "locations": [
+      "AS",
+      "Israel",
+      "Iran"
+    ],
+    "has_embedding": true
+  },
+  {
+    "url": "https://www.kompas.com/properti/read/2026/05/14/111954521/bos-bsn-siap-tancap-gas-biayai-kpr-40-tahun",
+    "title": "Bos BSN Siap Tancap Gas Biayai KPR 40 Tahun",
+    "content": "JAKARTA, Direktur Utama PT Bank Syariah Nasional atau BSN Alex Sofjan Noor menyatakan skema kredit pemilikan rumah (KPR) dengan tenor hingga 40 tahun masih memungkinkan dijalankan selama didukung sumber pendanaan yang sesuai. \"Semua feasible. Kan gini ya, selama dari funding-nya (pembiayaannya) kita ada yang memang match (cocok), masih feasible (layak),\" ujar Alex menjawab Kompas.com, di kantornya, Jakarta, Rabu (13/5/2026). Menurut dia, tantangan utama pembiayaan KPR jangka panjang bukan berada pada tenor cicilan hingga 40 tahun, melainkan pada kecocokan sumber pendanaan atau funding yang digunakan bank. \"Nah ini yang jadi permasalahan kan bukan jangka waktu 40 tahun, funding-nya ini kita cari yang memang funding-funding yang memang panjang,\" kata dia. Alex juga mengungkapkan adanya informasi mengenai sumber dana dengan tenor panjang yang bisa menopang pembiayaan tersebut. . Alex menegaskan, selama struktur pendanaan dan tenor kredit dapat disesuaikan, skema KPR 40 tahun tidak menjadi persoalan bagi perbankan. \"Udah head-to-head (berhadapan langsung) enggak masalah,\" tutur Alex. Sebelumnya, Menteri Perumahan dan Kawasan Permukiman (PKP) Maruarar Sirait atau Ara menyatakan siap menyusun aturan baru terkait tenor kredit pemilikan rumah (KPR) subsidi hingga 40 tahun bagi buruh. Langkah tersebut disebut merupakan arahan langsung Presiden Prabowo Subianto untuk meringankan cicilan bagi buruh. Ara mengatakan sebelumnya pemerintah telah memperpanjang tenor KPR subsidi dari 20 tahun menjadi 30 tahun. Namun, setelah mendapat arahan dari Prabowo, pemerintah kini menyiapkan regulasi baru agar tenor cicilan bisa mencapai 40 tahun. Kalau Presiden sudah perintah, saya kan baru dari 20 (tahun) ke 30 tahun. Presiden lebih hebat lagi, dari 30 (tahun) ke 40 tahun kita ubah lagi regulasinya sesuai arahan Presiden Prabowo,\" jelas Ara saat menghadiri penanaman pohon di Taman Kehati, Kota Baru, Lampung, Kamis (7/5/2026). Menurutnya, kebijakan tersebut bertujuan membantu masyarakat agar beban angsuran rumah menjadi lebih ringan.",
+    "author": "Suhaiela Bahfein Penulis",
+    "category": "Properti",
+    "tags": [
+      "BSN",
+      "Bank Syariah Nasional",
+      "bsn cicilan kpr 40 tahun",
+      "bsn siap tancap gas biayai cicilan kpr 40 tahun",
+      "cicilan kpr 40 tahun bsn",
+      "bos bsn enggak masalah biayai cicilan kpr 40 tahun",
+      "alex sofjan noor",
+      "jakarta",
+      "cicilan kpr 40 tahun",
+      "bsn"
+    ],
+    "pub_date": "2026-05-14",
+    "scraped_at": "2026-05-14T12:41:55.708297+00:00",
+    "word_count": 285,
+    "sentiment_label": "neutral",
+    "sentiment_score": 0.4712,
+    "entities": [
+      {
+        "name": "Jakarta",
+        "type": "LOCATION",
+        "count": 2,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Daerah_Khusus_Ibukota_Jakarta",
+        "wikidata_id": "Q3630",
+        "deskripsi": "Jakarta, secara resmi bernama Daerah Khusus Ibukota Jakarta atau DKI Jakarta, sebelumnya dikenal sebagai Batavia, adalah ibu kota Indonesia dan sekaligus daerah otonom setingkat provinsi. Jakarta memiliki lima kota administrasi dan satu kabupaten administrasi. DKI Jakarta dapat digolongkan sebagai kota metropolitan, dan mendapat julukan The Big Durian karena dianggap sebanding dengan Kota New York (Big Apple) di Amerika Serikat.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      },
+      {
+        "name": "Lampung",
+        "type": "LOCATION",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Lampung",
+        "wikidata_id": "Q2110",
+        "deskripsi": "Lampung adalah provinsi yang terletak di ujung selatan Pulau Sumatra, Indonesia. Ibu kota provinsi ini adalah kota Bandar Lampung. Provinsi ini memiliki dua kota, yaitu Kota Bandar Lampung dan Kota Metro, serta 13 kabupaten.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "PT Bank Syariah Nasional",
+        "type": "ORGANIZATION",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Bank_Syariah_Nasional",
+        "wikidata_id": "Q17998915",
+        "deskripsi": "Bank Syariah Nasional (disingkat BSN) merupakan perusahaan yang bergerak dalam bidang perbankan syariah dan berkantor pusat di Menara Bank BTN Lantai 11, Jl. Gajah Mada No.1, Jakarta Pusat, Indonesia. Perusahaan ini didirikan pada tanggal 2 Oktober 2025.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      },
+      {
+        "name": "Prabowo Subianto",
+        "type": "PERSON",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Prabowo_Subianto",
+        "wikidata_id": "Q2107268",
+        "deskripsi": "Prabowo Subianto Djojohadikusumo (lahir 17 Oktober 1951) adalah seorang politikus, pengusaha, dan pensiunan perwira militer Indonesia yang menjabat sebagai Presiden Indonesia kedelapan sejak 2024. Sebelumnya, ia menjabat sebagai Menteri Pertahanan ke-26 di bawah Presiden Joko Widodo dari tahun 2019 hingga 2024. Prabowo adalah presiden ketiga Indonesia yang memiliki latar belakang militer setelah Soeharto dan Susilo Bambang Yudhoyono, dan merupakan presiden tertua dalam sejarah Indonesia.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "Prabowo",
+        "type": "PERSON",
+        "count": 3,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Prabowo_Subianto",
+        "wikidata_id": "Q2107268",
+        "deskripsi": "Prabowo Subianto Djojohadikusumo (lahir 17 Oktober 1951) adalah seorang politikus, pengusaha, dan pensiunan perwira militer Indonesia yang menjabat sebagai Presiden Indonesia kedelapan sejak 2024. Sebelumnya, ia menjabat sebagai Menteri Pertahanan ke-26 di bawah Presiden Joko Widodo dari tahun 2019 hingga 2024. Prabowo adalah presiden ketiga Indonesia yang memiliki latar belakang militer setelah Soeharto dan Susilo Bambang Yudhoyono, dan merupakan presiden tertua dalam sejarah Indonesia.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      },
+      {
+        "name": "Perumahan",
+        "type": "PERSON",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Daftar_Menteri_Perumahan_dan_Kawasan_Permukiman_Indonesia",
+        "wikidata_id": "Q25453300",
+        "deskripsi": "Menteri Perumahan dan Kawasan Permukiman Indonesia adalah kepala Kementerian Perumahan dan Kawasan Permukiman Republik Indonesia. Sebelumnya, jabatan ini digabung menjadi Menteri Pekerjaan Umum dan Perumahan Rakyat Indonesia sejak 27 Oktober 2024.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      },
+      {
+        "name": "Utama",
+        "type": "PERSON",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Halaman_Utama",
+        "wikidata_id": "Q5296",
+        "deskripsi": "dipenuhi seseorang untuk memperoleh kewarganegaraan Israel. Dua undang-undang <span class=\"searchmatch\">utama</span> yang mengatur persyaratan ini adalah Undang-Undang Kepulangan tahun 1950",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 0.95,
+        "nel_language": "id"
+      }
+    ],
+    "persons": [
+      "Prabowo Subianto",
+      "Prabowo",
+      "Perumahan",
+      "Utama"
+    ],
+    "organizations": [
+      "PT Bank Syariah Nasional"
+    ],
+    "locations": [
+      "Jakarta",
+      "Lampung"
+    ],
+    "has_embedding": true
+  },
+  {
+    "url": "https://www.kompas.com/tren/read/2026/05/14/093000665/malaysia-perluas-pencarian-7-korban-kapal-tenggelam-yang-angkut-37-wni",
+    "title": "Malaysia Perluas Pencarian 7 Korban Kapal Tenggelam yang Angkut 37 WNI",
+    "content": "Otoritas Malaysia memperluas area pencarian korban kapal karam di perairan Pulau Pangkor, Lumut, hingga mencapai 343 batu nautika persegi pada hari ketiga operasi pencarian Rabu (13/5/2026). Langkah ini dilakukan untuk mencari tujuh migran asal Indonesia yang masih dinyatakan hilang setelah insiden kapal tenggelam yang terjadi pada Senin (11/5/2026). Pengarah Agensi Penguatkuasaan Maritim Malaysia (APMM) Perak, Kapten Maritim Mohamad Shukri Khotob, mengatakan perluasan area pencarian dilakukan berdasarkan pola pergerakan korban yang sebelumnya ditemukan. . Ia menambahkan, hingga hari ketiga operasi pada pukul 14.30 waktu setempat, belum ada penemuan jenazah baru, namun operasi pencarian tetap diperluas dan dilanjutkan secara intensif. Dalam operasi tersebut, tim gabungan yang terdiri dari APMM, Pasukan Polis Marin (PPM), dan Tentera Laut Diraja Malaysia (TLDM) terus menyisir sektor-sektor yang telah ditentukan. Menurut Mohamad Shukri, kondisi arus laut menjadi salah satu tantangan utama dalam pencarian karena berpotensi menggeser posisi korban lebih jauh dari titik awal kejadian. \"Arus laut cukup kuat sehingga korban kemungkinan hanyut lebih jauh dari lokasi awal,\" katanya. Operasi pencarian dijadwalkan berlangsung hingga pukul 19.00 setiap hari, sebelum dilanjutkan kembali pada pagi hari berikutnya mulai pukul 07.00 hingga 19.00 waktu setempat. Ia juga tidak menutup kemungkinan area pencarian akan kembali diperluas jika diperlukan berdasarkan perkembangan di lapangan. Sejauh ini, total 30 korban telah ditemukan dalam insiden kapal tenggelam tersebut, dengan rincian 23 orang berhasil diselamatkan dan tujuh lainnya ditemukan meninggal dunia. . Kapal tersebut diduga dikendalikan oleh kru warga Myanmar sebelum mengalami kecelakaan di perairan Pulau Pangkor.",
+    "author": "(Bernama)",
+    "category": "Tren",
+    "tags": [
+      "Malaysia",
+      "Migran ilegal",
+      "WNI di Malaysia",
+      "kapal tenggelam di Malaysia",
+      "-",
+      "Malaysiaa",
+      "WNI",
+      "Kapal"
+    ],
+    "pub_date": "2026-05-14",
+    "scraped_at": "2026-05-14T12:41:57.340090+00:00",
+    "word_count": 240,
+    "sentiment_label": "neutral",
+    "sentiment_score": 0.9856,
+    "entities": [
+      {
+        "name": "Indonesia",
+        "type": "LOCATION",
+        "count": 1,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Indonesia",
+        "wikidata_id": "Q252",
+        "deskripsi": "Indonesia, dengan nama resmi Republik Indonesia, adalah sebuah negara di Asia Tenggara dan Oseania, yang terletak di antara Samudra Hindia dan Samudra Pasifik. Letak geografis negara ini secara maritim diapit oleh Samudra Hindia di sisi barat daya dan Samudra Pasifik di sisi timur laut, juga merupakan negara di ujung tenggara wilayah Asia. Secara daratan berada di antara superbenua Afro-Eurasia dan daratan benua Oseania (Australia), juga menjadi salah satu negara tropis yang dilalui oleh garis ekuator khatulistiwa.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      },
+      {
+        "name": "Malaysia",
+        "type": "LOCATION",
+        "count": 4,
+        "wikipedia_url": "https://id.wikipedia.org/wiki/Malaysia",
+        "wikidata_id": "Q833",
+        "deskripsi": "Malaysia, adalah sebuah negara monarki konstitusional federal di Asia Tenggara yang terdiri dari 11 negara bagian (negeri) Semenanjung Melayu, dua negara bagian Pulau Kalimantan, dan tiga wilayah federal (wilayah persekutuan) yang mencakup wilayah seluas 330.803 kilometer persegi (127.720 mil persegi). Ibu kotanya adalah Kuala Lumpur, sedangkan Putrajaya menjadi pusat pemerintahan federal. Jumlah penduduk negara ini mencapai 34.564.810 jiwa pada tahun 2024.",
+        "nel_matched": true,
+        "nel_score": 1.0,
+        "nel_similarity": 1.0,
+        "nel_language": "id"
+      }
+    ],
+    "persons": [],
+    "organizations": [],
+    "locations": [
+      "Indonesia",
+      "Malaysia"
+    ],
+    "has_embedding": true
+  }
+]
