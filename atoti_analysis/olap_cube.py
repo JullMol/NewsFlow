@@ -95,6 +95,7 @@ def create_cube(data: dict = None):
         "nama_kategori": "Unknown",
         "label": "Unknown",
         "nama_penulis": "Unknown"
+        
     }
     for col, val in fill_values.items():
         if col in df_merged.columns:
@@ -146,7 +147,6 @@ def create_cube(data: dict = None):
         "Tanggal": artikel_table["tanggal"],
     }
     
-    # Independent hierarchies for easy UI dragging without drill-down constraints
     h["Tahun"] = {"Tahun": artikel_table["tahun"]}
     h["Bulan"] = {"Bulan": artikel_table["nama_bulan"]}
     h["Tanggal"] = {"Tanggal": artikel_table["tanggal"]}
@@ -211,7 +211,7 @@ def olap_rollup(cube):
     m = cube.measures
     h = cube.hierarchies
 
-    # Roll-up: Tanggal -> Bulan -> Tahun per Kategori
+    # Roll-up: Tanggal -> Bulan -> Tahun per Kategori1
     print("\n [Granular] Volume Artikel per Tanggal & Kategori (10 Baris Pertama):")
     df_tanggal = cube.query(m["Jumlah Artikel"], levels=[h["Kategori"]["Nama Kategori"], h["Waktu"]["Tanggal"]])
     print(df_tanggal.head(10))
@@ -315,7 +315,6 @@ def semantic_search(query_text: str, top_k: int = 5):
 if __name__ == "__main__":
     session, cube = create_cube()
     
-    # Jalankan seluruh 4 operasi OLAP interaktif
     olap_rollup(cube)
     olap_drilldown(cube, tahun=2026, bulan="Mei")
     olap_slice(cube, kategori="Finansial")
